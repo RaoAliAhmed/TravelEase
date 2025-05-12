@@ -66,7 +66,7 @@ export default function NewBus() {
         )}
 
         <TravelForm 
-          type="buse"
+          type="bus"
           onSubmit={handleSubmit}
         />
       </div>

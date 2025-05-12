@@ -42,16 +42,20 @@ export default function TravelCard({
 
   const handleBookClick = (e) => {
     e.stopPropagation();
+    // Ensure we always use 'buses' for bus type
+    const urlType = type === 'bus' ? 'buses' : `${type}s`;
     if (session) {
-      router.push(`/${type}s/book/${item._id}`);
+      router.push(`/${urlType}/book/${item._id}`);
     } else {
-      router.push(`/auth/login?callbackUrl=${encodeURIComponent(`/${type}s/${item._id}`)}`);
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(`/${urlType}/${item._id}`)}`);
     }
   };
 
   const handleCardClick = () => {
     if (item._id) {
-      router.push(`/${type}s/${item._id}`);
+      // Ensure we always use 'buses' for bus type
+      const urlType = type === 'bus' ? 'buses' : `${type}s`;
+      router.push(`/${urlType}/${item._id}`);
     }
   };
 

@@ -8,7 +8,10 @@ export default function SearchHeader({
   sortBy, 
   onSortChange,
   bgColor = 'indigo',
-  placeholder = 'Search by city, company...'
+  placeholder = 'Search by city, company...',
+  date = '',
+  onDateChange = () => {},
+  showDateFilter = false
 }) {
   return (
     <>

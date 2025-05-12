@@ -24,7 +24,6 @@ export default function Buses({ buses }) {
     return 0;
   });
 
-  console.log(sortedBuses)
   return (
     <div className="min-h-screen bg-gray-50">
       <SearchHeader
@@ -42,7 +41,7 @@ export default function Buses({ buses }) {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <TravelList
           items={sortedBuses}
-          type="buse"
+          type="bus"
           color="blue"
           showSeats={true}
           showCompany={true}

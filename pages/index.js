@@ -37,18 +37,25 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
 
     setIsSearching(true);
     try {
-      // Construct search query
-      const query = searchQuery || `${departureCity} ${destinationCity}`.trim();
-      
       // Build the URL with query parameters
       let searchUrl = `/api/search?`;
       const params = new URLSearchParams();
       
-      if (query) {
-        params.append('query', query);
+      if (searchQuery) {
+        params.append('query', searchQuery);
+      }
+      
+      if (departureCity) {
+        params.append('departureCity', departureCity);
+      }
+      
+      if (destinationCity) {
+        params.append('destinationCity', destinationCity);
       }
       
       if (date) {
+        // Date is already in YYYY-MM-DD format from the date input
+        // No need to reformat, just pass it as is
         params.append('date', date);
       }
       
@@ -230,7 +237,19 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
                         {activeTab === 'trips' ? item.name : `${item.from} → ${item.to}`}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {new Date(item.departureDate || item.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })} • {item.duration}
+                        {(() => {
+                          const dateToFormat = item.departureDate || item.startDate;
+                          if (!dateToFormat) return 'Date not available';
+                          
+                          const parsedDate = new Date(dateToFormat);
+                          if (isNaN(parsedDate.getTime())) return 'Date not available';
+                          
+                          return parsedDate.toLocaleDateString('en-GB', { 
+                            year: 'numeric', 
+                            month: '2-digit', 
+                            day: '2-digit' 
+                          });
+                        })()} • {item.duration}
                       </p>
                       <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center">

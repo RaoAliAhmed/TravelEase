@@ -22,7 +22,19 @@ const User = {
         default: 'confirmed'
       },
       passengers: Number,
-      totalPrice: Number
+      totalPrice: Number,
+      contactInfo: {
+        firstName: String,
+        lastName: String,
+        email: String,
+        phone: String,
+        address: String,
+        city: String,
+        country: String,
+        zipCode: String,
+        specialRequests: String
+      },
+      selectedClass: String
     }
   ]
 };

@@ -19,6 +19,8 @@ export default function TripBooking() {
   const [error, setError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState(null);
+  const [contactInfo, setContactInfo] = useState(null);
+
   useEffect(() => {
     if (!id || trip) return;
 
@@ -41,11 +43,15 @@ export default function TripBooking() {
     fetchTrip();
   }, [id]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData) => {
     if (!session) {
       router.push('/auth/signin');
       return;
     }
+
+    setLoading(true);
+    setError(null);
+    setContactInfo(formData);
 
     try {
       const res = await fetch('/api/user/bookings', {
@@ -55,11 +61,15 @@ export default function TripBooking() {
           type: 'trip',
           itemId: id,
           passengers: passengerCount,
-          totalPrice: trip.price * passengerCount
+          totalPrice: trip.price * passengerCount,
+          contactInfo: formData
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to create booking');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create booking');
+      }
 
       const data = await res.json();
       setBookingId(data.booking.bookingId);
@@ -73,6 +83,8 @@ export default function TripBooking() {
       });
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,6 +109,7 @@ export default function TripBooking() {
           companyName={trip.tourCompany?.name || trip.tourCompany}
           totalPrice={trip.price * passengerCount}
           onViewBookings={handleViewBookings}
+          contactInfo={contactInfo}
         />
       </BookingLayout>
     );

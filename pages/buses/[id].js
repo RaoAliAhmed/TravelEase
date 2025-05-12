@@ -5,15 +5,15 @@ import TravelDetailHeader from '@/components/travel/TravelDetailHeader';
 import TravelDetailImage from '@/components/travel/TravelDetailImage';
 import TravelDetailInfo from '@/components/travel/TravelDetailInfo';
 import TravelDetailBooking from '@/components/travel/TravelDetailBooking';
-import { BusProvider, useBus } from '@/context/BusContext';
+import { useBus } from '@/context/BusContext';
 
-function BusDetailPageInner({ bus }) {
+export default function BusDetailPage({ bus }) {
   const router = useRouter();
   const { setBus } = useBus();
 
   useEffect(() => {
     if (bus) setBus(bus);
-  }, [bus]);
+  }, [bus, setBus]);
 
   if (router.isFallback) {
     return (
@@ -41,7 +41,7 @@ function BusDetailPageInner({ bus }) {
   const from = bus.from || bus.origin;
   const to = bus.to || bus.destination;
   const companyName = bus.busCompany;
-  console.log(bus);
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <TravelDetailHeader
@@ -83,8 +83,6 @@ function BusDetailPageInner({ bus }) {
     </div>
   );
 }
-
-export default BusDetailPageInner;
 
 export async function getServerSideProps({ params }) {
   try {

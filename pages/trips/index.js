@@ -40,7 +40,7 @@ export default function Trips({ initialTrips }) {
 
     fetchTrips();
   }, []);
-  
+
   // Filter trips based on search term
   const filteredTrips = trips.filter(trip => 
     (trip.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||

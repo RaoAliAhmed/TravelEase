@@ -162,6 +162,34 @@ export default function Bookings({ initialBookings }) {
                           passengerCount={booking.passengers}
                           companyField={companyField}
                         />
+                        {/* Contact Information Section */}
+                        {booking.contactInfo && (
+                          <div className="px-6 pb-4 pt-2 border-t border-gray-200">
+                            <div className="flex flex-col md:flex-row md:justify-between">
+                              <div className="mb-2 md:mb-0">
+                                <h3 className="text-sm font-medium text-gray-700">Contact Information</h3>
+                                <p className="text-gray-600">
+                                  {booking.contactInfo.firstName} {booking.contactInfo.lastName}
+                                </p>
+                                <p className="text-gray-600">{booking.contactInfo.email}</p>
+                                <p className="text-gray-600">{booking.contactInfo.phone}</p>
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-medium text-gray-700">Address</h3>
+                                <p className="text-gray-600">{booking.contactInfo.address}</p>
+                                <p className="text-gray-600">
+                                  {booking.contactInfo.city}, {booking.contactInfo.country} {booking.contactInfo.zipCode}
+                                </p>
+                              </div>
+                            </div>
+                            {booking.contactInfo.specialRequests && (
+                              <div className="mt-2">
+                                <h3 className="text-sm font-medium text-gray-700">Special Requests</h3>
+                                <p className="text-gray-600">{booking.contactInfo.specialRequests}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         <div className="flex items-center gap-3 px-6 pb-4">
                           <span className={`px-2 py-1 text-xs rounded ${
                             booking.status === 'confirmed' 

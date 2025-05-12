@@ -19,6 +19,7 @@ export default function FlightBooking() {
   const [error, setError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState(null);
+  const [contactInfo, setContactInfo] = useState(null);
 
   useEffect(() => {
     if (!id || flight) return;
@@ -51,11 +52,15 @@ export default function FlightBooking() {
     }
   }, [flight]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData) => {
     if (!session) {
       router.push('/auth/signin');
       return;
     }
+
+    setLoading(true);
+    setError(null);
+    setContactInfo(formData);
 
     try {
       const res = await fetch('/api/user/bookings', {
@@ -66,15 +71,21 @@ export default function FlightBooking() {
           itemId: id,
           passengers: passengerCount,
           totalPrice: (selectedClass?.price || flight.price) * passengerCount,
+          contactInfo: formData,
+          selectedClass: selectedClass ? selectedClass.name : 'Economy'
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to create booking');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create booking');
+      }
 
       const data = await res.json();
       setBookingId(data.booking.bookingId);
       setBookingSuccess(true);
 
+      // Update available seats
       const newSeats = flight.seats - passengerCount;
       await fetch(`/api/flights/${id}/seats`, {
         method: 'PUT',
@@ -83,6 +94,8 @@ export default function FlightBooking() {
       });
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,6 +115,7 @@ export default function FlightBooking() {
           companyName={flight.airline?.name || flight.airline}
           totalPrice={(selectedClass?.price || flight.price) * passengerCount}
           onViewBookings={handleViewBookings}
+          contactInfo={contactInfo}
         />
       </BookingLayout>
     );

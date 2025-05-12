@@ -31,10 +31,29 @@ export default function BookingSuccess({
   date,
   companyName,
   totalPrice,
-  onViewBookings
+  onViewBookings,
+  contactInfo
 }) {
   const colors = colorClasses[color] || colorClasses.blue;
   const typeTitle = type.charAt(0).toUpperCase() + type.slice(1);
+
+  // Format date with validation
+  const formatDate = (dateValue) => {
+    if (!dateValue) return 'Not specified';
+    
+    const parsedDate = new Date(dateValue);
+    
+    // Check if date is valid
+    if (isNaN(parsedDate.getTime())) {
+      return 'Not specified';
+    }
+    
+    return parsedDate.toLocaleDateString('en-GB', { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    });
+  };
 
   return (
     <div className={`${colors.bg} border ${colors.border} rounded-lg p-8 text-center`}>
@@ -60,7 +79,9 @@ export default function BookingSuccess({
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Date</span>
-            <span className="font-medium">{new Date(date).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
+            <span className="font-medium">
+              {formatDate(date)}
+            </span>
           </div>
           {companyName && (
             <div className="flex justify-between">
@@ -68,6 +89,26 @@ export default function BookingSuccess({
               <span className="font-medium">{companyName}</span>
             </div>
           )}
+          
+          {contactInfo && (
+            <>
+              <div className="pt-2 border-t border-gray-100">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Contact</span>
+                  <span className="font-medium">
+                    {contactInfo.firstName} {contactInfo.lastName}
+                  </span>
+                </div>
+                {contactInfo.email && (
+                  <div className="flex justify-between mt-1">
+                    <span className="text-gray-600">Email</span>
+                    <span className="font-medium">{contactInfo.email}</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+          
           <div className="flex justify-between pt-4 border-t">
             <span className="font-semibold">Total Amount</span>
             <span className={`font-bold ${colors.text}`}>

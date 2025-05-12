@@ -60,11 +60,32 @@ export default async function handler(req, res) {
 
   // POST request to add a new booking
   if (req.method === "POST") {
-    const { type, itemId, passengers, totalPrice } = req.body;
+    const { 
+      type, 
+      itemId, 
+      passengers, 
+      totalPrice, 
+      contactInfo,
+      selectedClass 
+    } = req.body;
     
     if (!type || !itemId || !passengers || !totalPrice) {
       client.close();
       return res.status(422).json({ message: "Missing required booking information" });
+    }
+
+    // Validate contactInfo fields if provided
+    if (contactInfo) {
+      const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'country', 'zipCode'];
+      const missingFields = requiredFields.filter(field => !contactInfo[field]);
+      
+      if (missingFields.length > 0) {
+        client.close();
+        return res.status(422).json({ 
+          message: "Missing required contact information", 
+          fields: missingFields 
+        });
+      }
     }
     
     try {
@@ -77,7 +98,9 @@ export default async function handler(req, res) {
         bookedAt: new Date(),
         status: 'confirmed',
         passengers,
-        totalPrice
+        totalPrice,
+        contactInfo,
+        selectedClass
       };
       
       // Check if the user has a bookings array, create it if it doesn't exist

@@ -1,4 +1,4 @@
-// pages/book/[id].js
+// pages/buses/book/[id].js
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ function BusBookingPageInner() {
   const [bookingId, setBookingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [contactInfo, setContactInfo] = useState(null);
 
   // Fetch the bus by ID and store in context
   useEffect(() => {
@@ -48,11 +49,15 @@ function BusBookingPageInner() {
     fetchBus();
   }, [id]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData) => {
     if (!session) {
       router.push("/auth/signin");
       return;
     }
+
+    setLoading(true);
+    setError(null);
+    setContactInfo(formData);
 
     try {
       const res = await fetch("/api/user/bookings", {
@@ -63,10 +68,15 @@ function BusBookingPageInner() {
           itemId: id,
           passengers: passengerCount,
           totalPrice: (selectedClass?.price || bus.price) * passengerCount,
+          contactInfo: formData,
+          selectedClass: selectedClass ? selectedClass.name : 'Standard'
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create booking");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to create booking");
+      }
 
       const data = await res.json();
       setBookingId(data.booking.bookingId);
@@ -80,6 +90,8 @@ function BusBookingPageInner() {
       });
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,9 +100,9 @@ function BusBookingPageInner() {
 
   if (bookingSuccess && bus) {
     return (
-      <BookingLayout type="buse" color="blue" title="Booking Confirmed" onBackClick={handleBackClick}>
+      <BookingLayout type="bus" color="blue" title="Booking Confirmed" onBackClick={handleBackClick}>
         <BookingSuccess
-          type="buse"
+          type="bus"
           color="blue"
           bookingId={bookingId}
           from={bus.from || bus.origin}
@@ -99,6 +111,7 @@ function BusBookingPageInner() {
           companyName={bus.company?.name || bus.company}
           totalPrice={(selectedClass?.price || bus.price) * passengerCount}
           onViewBookings={handleViewBookings}
+          contactInfo={contactInfo}
         />
       </BookingLayout>
     );
@@ -106,7 +119,7 @@ function BusBookingPageInner() {
 
   return (
     <BookingLayout
-      type="buse"
+      type="bus"
       color="blue"
       item={bus}
       title="Book Bus"
@@ -119,7 +132,7 @@ function BusBookingPageInner() {
         <>
           <BookingSummary
             item={bus}
-            type="buse"
+            type="bus"
             color="blue"
             showClass={true}
             selectedClass={selectedClass}
@@ -128,7 +141,7 @@ function BusBookingPageInner() {
           />
 
           <BookingForm
-            type="buse"
+            type="bus"
             color="blue"
             onSubmit={handleSubmit}
             loading={loading}
@@ -143,4 +156,14 @@ function BusBookingPageInner() {
     </BookingLayout>
   );
 }
-export default BusBookingPageInner;
+
+// Export with provider wrapper
+function BusBookingPage() {
+  return (
+    <BusProvider>
+      <BusBookingPageInner />
+    </BusProvider>
+  );
+}
+
+export default BusBookingPage;

@@ -62,10 +62,12 @@ export default function TravelDetailBooking({
   const totalPrice = (item.price * passengerCount * getClassMultiplier(selectedClass)).toFixed(2);
 
   const handleBookClick = () => {
+    // Ensure we always use 'buses' for bus type
+    const urlType = type === 'bus' ? 'buses' : `${type}s`;
     if (session) {
-      router.push(`/${type}s/book/${item._id}`);
+      router.push(`/${urlType}/book/${item._id}`);
     } else {
-      router.push(`/auth/login?callbackUrl=${encodeURIComponent(`/${type}s/${item._id}`)}`);
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(`/${urlType}/${item._id}`)}`);
     }
   };
 

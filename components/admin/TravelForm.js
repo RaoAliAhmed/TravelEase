@@ -139,7 +139,9 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
 
     try {
       await onSubmit(payload);
-      router.push(`/admin/${type}s`);
+      // Ensure we always use 'buses' for bus type
+      const urlType = type === 'bus' ? 'buses' : `${type}s`;
+      router.push(`/admin/${urlType}`);
     } catch (err) {
       setError(err.message || 'Something went wrong');
       console.error(`Error submitting ${type}:`, err);

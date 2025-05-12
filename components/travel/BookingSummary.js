@@ -19,8 +19,17 @@ const colorClasses = {
   }
 };
 
-const formatDateTime = (date) =>
-  new Date(date).toLocaleString('en-GB', {
+const formatDateTime = (dateValue) => {
+  if (!dateValue) return 'Not specified';
+  
+  const parsedDate = new Date(dateValue);
+  
+  // Check if date is valid
+  if (isNaN(parsedDate.getTime())) {
+    return 'Not specified';
+  }
+  
+  return parsedDate.toLocaleString('en-GB', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -29,6 +38,7 @@ const formatDateTime = (date) =>
     second: '2-digit',
     hour12: false
   });
+};
 
 export default function BookingSummary({
   item,
@@ -124,11 +134,11 @@ export default function BookingSummary({
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">Base Price</span>
-              <span className="font-medium">${basePrice.toFixed(2)}</span>
+              <span className="font-medium text-black">${basePrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">Passengers</span>
-              <span className="font-medium">x{passengerCount}</span>
+              <span className="font-medium text-black">x{passengerCount}</span>
             </div>
             <div className="flex justify-between items-center pt-2 border-t border-gray-200">
               <span className="font-semibold text-gray-800">Total</span>
