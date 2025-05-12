@@ -55,9 +55,9 @@ export default function BookingSummary({
         {/* Image Section */}
         <div className="w-full md:w-1/3">
           <div className="relative h-48 rounded-lg overflow-hidden">
-            {item.imageUrl ? (
+            {item.image ? (
               <Image
-                src={item.imageUrl}
+                src={item.image}
                 alt={`${from} to ${to}`}
                 fill
                 className="object-cover"

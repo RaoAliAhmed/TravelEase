@@ -9,7 +9,7 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     name: '',
     description: '',
     price: '',
-    imageUrl: '',
+    image: '',
     startDate: '',
     startTime: '',
     endDate: '',
@@ -124,7 +124,7 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     
     // Remove unused fields based on type
     const fieldsToKeep = [
-      'name', 'description', 'price', 'imageUrl', 'startDate', 'endDate', 'origin', 'destination', 'features',
+      'name', 'description', 'price', 'image', 'startDate', 'endDate', 'origin', 'destination', 'features',
       ...(type === 'flight' ? ['flightNumber', 'airline', 'duration', 'seats'] : []),
       ...(type === 'bus' ? ['busNumber', 'busType', 'amenities', 'duration', 'seats'] : []),
       ...(type === 'trip' ? ['tripType', 'accommodation', 'activities', 'duration', 'availableSpots'] : [])
@@ -206,11 +206,11 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Image URL</label>
+        <label className="block text-sm font-medium text-gray-700">Image</label>
         <input
           type="url"
-          name="imageUrl"
-          value={formData.imageUrl}
+          name="image"
+          value={formData.image}
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           placeholder="https://images.unsplash.com/..."
@@ -342,7 +342,7 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
             </div>
           </>
         );
-      case 'buse':
+      case 'bus':
         return (
           <>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

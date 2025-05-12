@@ -42,7 +42,8 @@ export default function TravelDetailBooking({
     trip: tripContext
   }[type];
 
-  const { passengerCount, setPassengerCount, selectedClass, setSelectedClass } = context;
+  // Add a fallback in case context is undefined
+  const { passengerCount = 1, setPassengerCount = () => {}, selectedClass = 'Economy', setSelectedClass = () => {} } = context || {};
 
   
   const colors = colorClasses[color] || colorClasses.blue;
@@ -118,7 +119,6 @@ export default function TravelDetailBooking({
         <div className="flex justify-between mb-2">
           <span className="text-gray-600">Passengers</span>
           <span className="text-gray-800">× {passengerCount}</span>
-          {console.log(passengerCount)}
         </div>
         {showClass && type !== 'trip' && (
           <div className="flex justify-between mb-2">
