@@ -44,7 +44,7 @@ export default function AdminLayout({ children }) {
       <div
         className={`${
           isSidebarOpen ? 'w-64' : 'w-16'
-        } transition-width duration-300 ease-in-out bg-indigo-800 text-white`}
+        } transition-width duration-300 ease-in-out bg-indigo-800 text-white flex flex-col h-full`}
       >
         <div className="flex items-center justify-between h-16 px-4">
           {isSidebarOpen && (
@@ -109,7 +109,7 @@ export default function AdminLayout({ children }) {
           
           ))}
         </nav>
-        <div className="absolute bottom-0 w-full">
+        <div className={`mt-auto ${isSidebarOpen ? 'w-64' : 'w-16'} px-2`}>
           <button
             onClick={handleSignOut}
             className={`flex items-center px-2 py-2 mb-4 w-full ${
