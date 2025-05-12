@@ -37,7 +37,7 @@ export default function TravelDetailBooking({
   
   // Select the context based on type
   const context = {
-    buse: busContext,
+    bus: busContext,
     flight: flightContext,
     trip: tripContext
   }[type];
