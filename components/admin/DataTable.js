@@ -114,7 +114,7 @@ export default function DataTable({
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="py-2 pl-10 pr-4 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="py-2 pl-10 pr-4 border border-gray-300 text-black rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             />
             <div className="absolute left-3 top-2.5">
               <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,15 +123,17 @@ export default function DataTable({
             </div>
           </div>
           
-          <Link 
-            href={`${actionPath}/${type}s/new`}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            <svg className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            New {type}
-          </Link>
+          {(type !== 'booking' && type !== 'user' && type !== 'users') && (
+            <Link 
+              href={`${actionPath}/${type}s/new`}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              New {type}
+            </Link>
+          )}
         </div>
       </div>
       
@@ -171,25 +173,37 @@ export default function DataTable({
                     </td>
                   ))}
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <Link 
-                      href={`${actionPath}/${type}s/${item._id}`}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      View
-                    </Link>
-                    <Link 
-                      href={`${actionPath}/${type}s/edit/${item._id}`}
-                      className="text-green-600 hover:text-green-900"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item._id)}
-                      disabled={isDeleting === item._id}
-                      className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                    >
-                      {isDeleting === item._id ? 'Deleting...' : 'Delete'}
-                    </button>
+                    {type === 'booking' ? (
+                      <button
+                        onClick={() => handleDelete(item.bookingId)}
+                        disabled={isDeleting === item.bookingId}
+                        className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                      >
+                        {isDeleting === item.bookingId ? 'Deleting...' : 'Delete'}
+                      </button>
+                    ) : (
+                      <>
+                        <Link 
+                          href={`${actionPath}/${type}s/${item._id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          View
+                        </Link>
+                        <Link 
+                          href={`${actionPath}/${type}s/edit/${item._id}`}
+                          className="text-green-600 hover:text-green-900"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          disabled={isDeleting === item._id}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                        >
+                          {isDeleting === item._id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))
