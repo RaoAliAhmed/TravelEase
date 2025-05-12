@@ -37,13 +37,14 @@ export default function TravelDetailBooking({
   
   // Select the context based on type
   const context = {
-    bus: busContext,
+    buse: busContext,
     flight: flightContext,
     trip: tripContext
   }[type];
 
   const { passengerCount, setPassengerCount, selectedClass, setSelectedClass } = context;
-  console.log(passengerCount);
+
+  
   const colors = colorClasses[color] || colorClasses.blue;
 
   const getClassMultiplier = (className) => {
