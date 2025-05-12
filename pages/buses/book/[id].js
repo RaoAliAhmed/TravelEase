@@ -175,13 +175,6 @@ function BusBookingPageInner() {
   );
 }
 
-// Export with provider wrapper
-function BusBookingPage() {
-  return (
-    <BusProvider>
-      <BusBookingPageInner />
-    </BusProvider>
-  );
-}
 
-export default BusBookingPage;
+
+export default BusBookingPageInner;
