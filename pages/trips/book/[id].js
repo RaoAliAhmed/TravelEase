@@ -18,6 +18,7 @@ export default function TripBooking() {
   const [loading, setLoading] = useState(!trip);
   const [error, setError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingId, setBookingId] = useState(null);
   useEffect(() => {
     if (!id || trip) return;
 
