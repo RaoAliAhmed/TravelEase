@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
-import BookingLayout from '../../../components/travel/BookingLayout';
-import BookingSummary from '../../../components/travel/BookingSummary';
-import BookingForm from '../../../components/travel/BookingForm';
-import BookingSuccess from '../../../components/travel/BookingSuccess';
+// pages/book/[id].js
+"use client";
 
-export default function BusBooking() {
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { useBus, BusProvider } from "@/context/BusContext";
+import BookingLayout from "@/components/travel/BookingLayout";
+import BookingSummary from "@/components/travel/BookingSummary";
+import BookingForm from "@/components/travel/BookingForm";
+import BookingSuccess from "@/components/travel/BookingSuccess";
+
+function BusBookingPageInner() {
   const router = useRouter();
-  const { data: session } = useSession();
   const { id } = router.query;
+  const { data: session } = useSession();
 
-  const [bus, setBus] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { bus, setBus, passengerCount, setPassengerCount, selectedClass, setSelectedClass } = useBus();
+
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState(null);
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [passengerCount, setPassengerCount] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch bus data
+  // Fetch the bus by ID and store in context
   useEffect(() => {
     if (!id) return;
 
@@ -27,17 +30,12 @@ export default function BusBooking() {
       try {
         const res = await fetch(`/api/buses/${id}`);
         if (!res.ok) {
-          if (res.status === 404) {
-            setError('Bus not found');
-          } else {
-            throw new Error('Failed to fetch bus details');
-          }
+          setError(res.status === 404 ? "Bus not found" : "Failed to fetch bus details");
           return;
         }
         const data = await res.json();
         setBus(data);
-        // Set default class if available
-        if (data.classes && data.classes.length > 0) {
+        if (data.classes?.length > 0) {
           setSelectedClass(data.classes[0]);
         }
       } catch (err) {
@@ -50,30 +48,25 @@ export default function BusBooking() {
     fetchBus();
   }, [id]);
 
-  // Handle booking submission
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async () => {
     if (!session) {
-      router.push('/auth/signin');
+      router.push("/auth/signin");
       return;
     }
 
     try {
-      const res = await fetch('/api/user/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const res = await fetch("/api/user/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: 'bus',
+          type: "bus",
           itemId: id,
           passengers: passengerCount,
-          totalPrice: (selectedClass?.price || bus.price) * passengerCount
+          totalPrice: (selectedClass?.price || bus.price) * passengerCount,
         }),
       });
 
-      if (!res.ok) {
-        throw new Error('Failed to create booking');
-      }
+      if (!res.ok) throw new Error("Failed to create booking");
 
       const data = await res.json();
       setBookingId(data.booking.bookingId);
@@ -81,8 +74,8 @@ export default function BusBooking() {
 
       const newSeats = bus.seats - passengerCount;
       await fetch(`/api/buses/${id}/seats`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ seats: newSeats }),
       });
     } catch (err) {
@@ -90,24 +83,12 @@ export default function BusBooking() {
     }
   };
 
-  // Handle view bookings click
-  const handleViewBookings = () => {
-    router.push('/bookings');
-  };
-
-  // Handle back button click
-  const handleBackClick = () => {
-    router.back();
-  };
+  const handleBackClick = () => router.back();
+  const handleViewBookings = () => router.push("/profile/bookings");
 
   if (bookingSuccess && bus) {
     return (
-      <BookingLayout
-        type="buse"
-        color="blue"
-        title="Booking Confirmed"
-        onBackClick={handleBackClick}
-      >
+      <BookingLayout type="buse" color="blue" title="Booking Confirmed" onBackClick={handleBackClick}>
         <BookingSuccess
           type="buse"
           color="blue"
@@ -131,7 +112,7 @@ export default function BusBooking() {
       title="Book Bus"
       loading={loading}
       error={error}
-      notFound={error === 'Bus not found'}
+      notFound={error === "Bus not found"}
       onBackClick={handleBackClick}
     >
       {bus && (
@@ -161,4 +142,5 @@ export default function BusBooking() {
       )}
     </BookingLayout>
   );
-} 
+}
+export default BusBookingPageInner;

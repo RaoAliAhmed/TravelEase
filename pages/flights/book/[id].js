@@ -1,42 +1,37 @@
+// pages/flights/book/[id].js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import BookingLayout from '../../../components/travel/BookingLayout';
-import BookingSummary from '../../../components/travel/BookingSummary';
-import BookingForm from '../../../components/travel/BookingForm';
-import BookingSuccess from '../../../components/travel/BookingSuccess';
+import BookingLayout from '@/components/travel/BookingLayout';
+import BookingSummary from '@/components/travel/BookingSummary';
+import BookingForm from '@/components/travel/BookingForm';
+import BookingSuccess from '@/components/travel/BookingSuccess';
+import { useFlight } from '@/context/FlightContext';
 
 export default function FlightBooking() {
   const router = useRouter();
   const { data: session } = useSession();
   const { id } = router.query;
 
-  const [flight, setFlight] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { flight, setFlight, passengerCount, setPassengerCount, selectedClass, setSelectedClass } = useFlight();
+
+  const [loading, setLoading] = useState(!flight);
   const [error, setError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState(null);
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [passengerCount, setPassengerCount] = useState(1);
 
-  // Fetch flight data
   useEffect(() => {
-    if (!id) return;
+    if (!id || flight) return;
 
     const fetchFlight = async () => {
       try {
         const res = await fetch(`/api/flights/${id}`);
         if (!res.ok) {
-          if (res.status === 404) {
-            setError('Flight not found');
-          } else {
-            throw new Error('Failed to fetch flight details');
-          }
+          setError(res.status === 404 ? 'Flight not found' : 'Failed to fetch flight details');
           return;
         }
         const data = await res.json();
         setFlight(data);
-        // Set default class if available
         if (data.classes && data.classes.length > 0) {
           setSelectedClass(data.classes[0]);
         }
@@ -50,8 +45,13 @@ export default function FlightBooking() {
     fetchFlight();
   }, [id]);
 
-  // Handle booking submission
-  const handleSubmit = async (formData) => {
+  useEffect(() => {
+    if (flight && flight.classes?.length > 0 && !selectedClass) {
+      setSelectedClass(flight.classes[0]);
+    }
+  }, [flight]);
+
+  const handleSubmit = async () => {
     if (!session) {
       router.push('/auth/signin');
       return;
@@ -60,20 +60,16 @@ export default function FlightBooking() {
     try {
       const res = await fetch('/api/user/bookings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'flight',
           itemId: id,
           passengers: passengerCount,
-          totalPrice: (selectedClass?.price || flight.price) * passengerCount
+          totalPrice: (selectedClass?.price || flight.price) * passengerCount,
         }),
       });
 
-      if (!res.ok) {
-        throw new Error('Failed to create booking');
-      }
+      if (!res.ok) throw new Error('Failed to create booking');
 
       const data = await res.json();
       setBookingId(data.booking.bookingId);
@@ -90,24 +86,12 @@ export default function FlightBooking() {
     }
   };
 
-  // Handle view bookings click
-  const handleViewBookings = () => {
-    router.push('/bookings');
-  };
-
-  // Handle back button click
-  const handleBackClick = () => {
-    router.back();
-  };
+  const handleBackClick = () => router.back();
+  const handleViewBookings = () => router.push('/profile/bookings');
 
   if (bookingSuccess && flight) {
     return (
-      <BookingLayout
-        type="flight"
-        color="pink"
-        title="Booking Confirmed"
-        onBackClick={handleBackClick}
-      >
+      <BookingLayout type="flight" color="pink" title="Booking Confirmed" onBackClick={handleBackClick}>
         <BookingSuccess
           type="flight"
           color="pink"
@@ -145,7 +129,6 @@ export default function FlightBooking() {
             passengerCount={passengerCount}
             companyField="airline"
           />
-
           <BookingForm
             type="flight"
             color="pink"
@@ -161,4 +144,4 @@ export default function FlightBooking() {
       )}
     </BookingLayout>
   );
-} 
+}

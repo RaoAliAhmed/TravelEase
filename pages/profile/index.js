@@ -218,7 +218,7 @@ export default function Profile() {
               <div>
                 <p className="text-sm text-gray-500">Account Created</p>
                 <p className="text-lg text-black">
-                  {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
+                  {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A'}
                 </p>
               </div>
             </div>

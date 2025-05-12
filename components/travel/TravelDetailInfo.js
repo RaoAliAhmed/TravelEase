@@ -76,7 +76,7 @@ export default function TravelDetailInfo({
                 {departureDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
               <p className="text-sm text-gray-600">
-                {departureDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                {departureDate.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' })}
               </p>
             </div>
             <div className="flex items-center justify-center">
@@ -96,7 +96,7 @@ export default function TravelDetailInfo({
                 {arrivalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
               <p className="text-sm text-gray-600">
-                {arrivalDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                {arrivalDate.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' })}
               </p>
             </div>
           </div>

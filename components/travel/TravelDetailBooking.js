@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
+import { useBus } from '@/context/BusContext';
+import { useFlight } from '@/context/FlightContext';
+import { useTrip } from '@/context/TripContext';
 
 const colorClasses = {
   blue: {
@@ -26,8 +29,21 @@ export default function TravelDetailBooking({
 }) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [passengerCount, setPassengerCount] = useState(1);
-  const [selectedClass, setSelectedClass] = useState(classes[0]);
+  
+  // Get the appropriate context based on type
+  const busContext = useBus();
+  const flightContext = useFlight();
+  const tripContext = useTrip();
+  
+  // Select the context based on type
+  const context = {
+    bus: busContext,
+    flight: flightContext,
+    trip: tripContext
+  }[type];
+
+  const { passengerCount, setPassengerCount, selectedClass, setSelectedClass } = context;
+  console.log(passengerCount);
   const colors = colorClasses[color] || colorClasses.blue;
 
   const getClassMultiplier = (className) => {
@@ -101,6 +117,7 @@ export default function TravelDetailBooking({
         <div className="flex justify-between mb-2">
           <span className="text-gray-600">Passengers</span>
           <span className="text-gray-800">× {passengerCount}</span>
+          {console.log(passengerCount)}
         </div>
         {showClass && type !== 'trip' && (
           <div className="flex justify-between mb-2">

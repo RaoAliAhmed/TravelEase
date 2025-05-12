@@ -19,6 +19,17 @@ const colorClasses = {
   }
 };
 
+const formatDateTime = (date) =>
+  new Date(date).toLocaleString('en-GB', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
 export default function BookingSummary({
   item,
   type,
@@ -84,14 +95,14 @@ export default function BookingSummary({
             <div>
               <p className="text-sm text-gray-500">Departure</p>
               <p className="font-medium text-gray-800">
-                {new Date(departureDate).toLocaleString()}
+                {formatDateTime(departureDate)}
               </p>
             </div>
             {arrivalDate && (
               <div>
                 <p className="text-sm text-gray-500">Arrival</p>
                 <p className="font-medium text-gray-800">
-                  {new Date(arrivalDate).toLocaleString()}
+                  {formatDateTime(arrivalDate)}
                 </p>
               </div>
             )}

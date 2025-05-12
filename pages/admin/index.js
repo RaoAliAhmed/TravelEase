@@ -100,7 +100,7 @@ export default function AdminDashboard({ stats }) {
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
                           <p>
-                            {new Date(booking.bookedAt).toLocaleDateString()} • ${booking.totalPrice}
+                            {new Date(booking.bookedAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })} • ${booking.totalPrice}
                           </p>
                         </div>
                       </div>
@@ -142,7 +142,7 @@ export default function AdminDashboard({ stats }) {
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
                           <p>
-                            Joined: {new Date(user.createdAt).toLocaleDateString()}
+                            Joined: {new Date(user.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                           </p>
                         </div>
                       </div>

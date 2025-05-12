@@ -230,7 +230,7 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
                         {activeTab === 'trips' ? item.name : `${item.from} → ${item.to}`}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {new Date(item.departureDate || item.startDate).toLocaleDateString()} • {item.duration}
+                        {new Date(item.departureDate || item.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })} • {item.duration}
                       </p>
                       <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center">

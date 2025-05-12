@@ -1,28 +1,34 @@
+// pages/buses/[id].js
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import TravelDetailHeader from '@/components/travel/TravelDetailHeader';
 import TravelDetailImage from '@/components/travel/TravelDetailImage';
 import TravelDetailInfo from '@/components/travel/TravelDetailInfo';
 import TravelDetailBooking from '@/components/travel/TravelDetailBooking';
+import { BusProvider, useBus } from '@/context/BusContext';
 
-export default function BusDetail({ bus }) {
+function BusDetailPageInner({ bus }) {
   const router = useRouter();
-  
-  // If the page is still generating via SSR
+  const { setBus } = useBus();
+
+  useEffect(() => {
+    if (bus) setBus(bus);
+  }, [bus]);
+
   if (router.isFallback) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-white-100">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  // If bus doesn't exist
   if (!bus) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Bus Not Found</h1>
         <p className="text-gray-600 mb-6">The bus you're looking for doesn't exist or has been removed.</p>
-        <button 
+        <button
           onClick={() => router.push('/buses')}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition"
         >
@@ -32,11 +38,10 @@ export default function BusDetail({ bus }) {
     );
   }
 
-  // Handle different field naming conventions
   const from = bus.from || bus.origin;
   const to = bus.to || bus.destination;
   const companyName = bus.busCompany;
-
+  console.log(bus);
   return (
     <div className="min-h-screen bg-gray-50">
       <TravelDetailHeader
@@ -47,11 +52,8 @@ export default function BusDetail({ bus }) {
         companyName={companyName}
         companyField="busCompany"
       />
-      
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Bus Details */}
           <div className="lg:col-span-2">
             <TravelDetailImage
               imageUrl={bus.image}
@@ -67,8 +69,6 @@ export default function BusDetail({ bus }) {
               companyField="busCompany"
             />
           </div>
-          
-          {/* Booking Panel */}
           <div className="lg:col-span-1">
             <TravelDetailBooking
               item={bus}
@@ -84,40 +84,25 @@ export default function BusDetail({ bus }) {
   );
 }
 
-// Use SSR for bus details since they can change
+export default BusDetailPageInner;
+
 export async function getServerSideProps({ params }) {
   try {
     const { id } = params;
-    
-    // Get the absolute URL for the API endpoint
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const host = process.env.VERCEL_URL || 'localhost:3000';
     const baseUrl = `${protocol}://${host}`;
-
-    // Fetch bus details
     const response = await fetch(`${baseUrl}/api/buses/${id}`);
     
     if (!response.ok) {
-      return {
-        props: {
-          bus: null
-        }
-      };
+      return { props: { bus: null } };
     }
     
     const bus = await response.json();
     
-    return {
-      props: {
-        bus
-      }
-    };
+    return { props: { bus } };
   } catch (error) {
     console.error('Error fetching bus:', error);
-    return {
-      props: {
-        bus: null
-      }
-    };
+    return { props: { bus: null } };
   }
-} 
+}

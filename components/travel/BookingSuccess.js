@@ -60,7 +60,7 @@ export default function BookingSuccess({
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Date</span>
-            <span className="font-medium">{new Date(date).toLocaleDateString()}</span>
+            <span className="font-medium">{new Date(date).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
           </div>
           {companyName && (
             <div className="flex justify-between">

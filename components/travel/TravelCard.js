@@ -88,7 +88,7 @@ export default function TravelCard({
         </h3>
 
         <p className="text-sm text-gray-500">
-          {new Date(departureDate).toLocaleDateString()} • {item.duration}
+          {new Date(departureDate).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })} • {item.duration}
         </p>
 
         <div className="mt-4 flex items-center justify-between">

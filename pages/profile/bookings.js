@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { MongoClient, ObjectId } from 'mongodb';
+import BookingSummary from '@/components/travel/BookingSummary';
 
 export default function Bookings({ initialBookings }) {
   const [bookings, setBookings] = useState(initialBookings);
@@ -10,7 +11,7 @@ export default function Bookings({ initialBookings }) {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleCancelBooking = async (bookingId) => {
+  const handleCancelBooking = async (bookingId, booking) => {
     if (!confirm('Are you sure you want to cancel this booking?')) {
       return;
     }
@@ -20,6 +21,7 @@ export default function Bookings({ initialBookings }) {
     setSuccessMessage('');
 
     try {
+      // First update the booking status
       const response = await fetch('/api/user/bookings', {
         method: 'PUT',
         headers: {
@@ -36,11 +38,52 @@ export default function Bookings({ initialBookings }) {
         throw new Error(data.message || 'Failed to cancel booking');
       }
 
+      // Then increment the seats/spots based on the booking type
+      const itemDetails = booking.itemDetails;
+      const passengers = booking.passengers;
+      
+      let updateEndpoint = '';
+      let updateField = '';
+      
+      switch (booking.type) {
+        case 'bus':
+          updateEndpoint = `/api/buses/${booking.itemId}/seats`;
+          updateField = 'seats';
+          break;
+        case 'flight':
+          updateEndpoint = `/api/flights/${booking.itemId}/seats`;
+          updateField = 'seats';
+          break;
+        case 'trip':
+          updateEndpoint = `/api/trips/${booking.itemId}/spots`;
+          updateField = 'availableSpots';
+          break;
+        default:
+          throw new Error('Invalid booking type');
+      }
+
+      const currentValue = itemDetails[updateField];
+      const newValue = currentValue + passengers;
+
+      const updateResponse = await fetch(updateEndpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          [updateField]: newValue
+        })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update available seats/spots');
+      }
+
       // Update local state
-      setBookings(bookings.map(booking => 
-        booking.bookingId === bookingId 
-          ? { ...booking, status: 'cancelled' } 
-          : booking
+      setBookings(bookings.map(b => 
+        b.bookingId === bookingId 
+          ? { ...b, status: 'cancelled' } 
+          : b
       ));
 
       setSuccessMessage('Booking cancelled successfully');
@@ -52,10 +95,10 @@ export default function Bookings({ initialBookings }) {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-GB', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: '2-digit',
+      day: '2-digit'
     });
   };
 
@@ -103,112 +146,41 @@ export default function Bookings({ initialBookings }) {
               {bookings.map((booking) => {
                 const itemDetails = booking.itemDetails || {};
                 const bookingType = booking.type;
-                
+        
+                const color = bookingType === 'flight' ? 'pink' : bookingType === 'bus' ? 'blue' : 'green';
+                const companyField = bookingType === 'flight' ? 'airline' : bookingType === 'bus' ? 'busCompany' : 'tourCompany';
                 return (
-                  <div 
-                    key={booking.bookingId} 
-                    className={`border rounded-lg overflow-hidden ${
-                      booking.status === 'cancelled' ? 'opacity-70' : ''
-                    }`}
-                  >
+                  <div key={booking.bookingId} className={`border rounded-lg overflow-hidden ${booking.status === 'cancelled' ? 'opacity-70' : ''}`}>
                     <div className="flex flex-col md:flex-row">
-                      {itemDetails.image && (
-                        <div className="md:w-1/4">
-                          <img 
-                            src={itemDetails.image} 
-                            alt={`${bookingType} image`} 
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="p-6 md:w-3/4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center mb-2">
-                              <span className="capitalize text-black text-lg font-semibold mr-3">
-                                {bookingType}
-                              </span>
-                              <span className={`px-2 py-1 text-xs rounded ${
-                                booking.status === 'confirmed' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : booking.status === 'cancelled'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {booking.status}
-                              </span>
-                            </div>
-                            
-                            {bookingType === 'flight' && (
-                              <div className="mb-4">
-                                <h3 className="text-xl font-bold text-black">
-                                  {itemDetails.from} to {itemDetails.to}
-                                </h3>
-                                <p className="text-gray-600">
-                                  {itemDetails.airline} - Flight {itemDetails.flightNumber}
-                                </p>
-                                <p className="text-gray-600">
-                                  Departure: {itemDetails.departureDate ? formatDate(itemDetails.departureDate) : 'N/A'}
-                                </p>
-                              </div>
-                            )}
-                            
-                            {bookingType === 'bus' && (
-                              <div className="mb-4">
-                                <h3 className="text-xl font-bold text-black">
-                                  {itemDetails.from} to {itemDetails.to}
-                                </h3>
-                                <p className="text-gray-600 text-black">
-                                  {itemDetails.busCompany} - {itemDetails.busNumber}
-                                </p>
-                                <p className="text-gray-600 text-black ">
-                                  Departure: {itemDetails.departureDate ? formatDate(itemDetails.departureDate) : 'N/A'}
-                                </p>
-                              </div>
-                            )}
-                            
-                            {bookingType === 'trip' && (
-                              <div className="mb-4">
-                                <h3 className="text-xl font-bold text-black">
-                                  {itemDetails.name}
-                                </h3>
-                                <p className="text-gray-600 text-black">
-                                  {itemDetails.location}
-                                </p>
-                                <p className="text-gray-600 text-black">
-                                  Duration: {itemDetails.duration}
-                                </p>
-                              </div>
-                            )}
-                            
-                            <div className="mt-4 text-black">
-                              <p><span className="font-medium text-black">Booked on:</span> {formatDate(booking.bookedAt)}</p>
-                              <p><span className="font-medium text-black">Passengers:</span> {booking.passengers}</p>
-                              <p><span className="font-medium text-black">Total Price:</span> ${booking.totalPrice}</p>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            {booking.status === 'confirmed' && (
-                              <button
-                                onClick={() => handleCancelBooking(booking.bookingId)}
-                                disabled={loading}
-                                className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 disabled:opacity-50"
-                              >
-                                Cancel
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 pt-4 border-t">
-                          <Link 
-                            href={`/${bookingType}s/${itemDetails._id}`}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            View {bookingType} details
-                          </Link>
+                      <div className="flex-1">
+                        <BookingSummary
+                          item={itemDetails}
+                          type={bookingType}
+                          color={color}
+                          showClass={!!itemDetails?.classes}
+                          selectedClass={booking.selectedClass}
+                          passengerCount={booking.passengers}
+                          companyField={companyField}
+                        />
+                        <div className="flex items-center gap-3 px-6 pb-4">
+                          <span className={`px-2 py-1 text-xs rounded ${
+                            booking.status === 'confirmed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : booking.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {booking.status}
+                          </span>
+                          {booking.status === 'confirmed' && (
+                            <button
+                              onClick={() => handleCancelBooking(booking.bookingId, booking)}
+                              disabled={loading}
+                              className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 disabled:opacity-50"
+                            >
+                              Cancel
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -273,7 +245,9 @@ export async function getServerSideProps(context) {
     const enhancedBookings = await Promise.all(
       bookings.map(async (booking) => {
         try {
-          const collection = travelDb.collection(booking.type + 's');
+          let collectionName = booking.type + 's';
+          if (booking.type === 'bus') collectionName = 'buses';
+          const collection = travelDb.collection(collectionName);
           const item = await collection.findOne({ _id: new ObjectId(booking.itemId) });
           
           return {

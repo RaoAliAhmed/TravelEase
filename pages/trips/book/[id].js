@@ -1,35 +1,31 @@
+// pages/trips/book/[id].js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import BookingLayout from '../../../components/travel/BookingLayout';
-import BookingSummary from '../../../components/travel/BookingSummary';
-import BookingForm from '../../../components/travel/BookingForm';
-import BookingSuccess from '../../../components/travel/BookingSuccess';
+import BookingLayout from '@/components/travel/BookingLayout';
+import BookingSummary from '@/components/travel/BookingSummary';
+import BookingForm from '@/components/travel/BookingForm';
+import BookingSuccess from '@/components/travel/BookingSuccess';
+import { useTrip } from '@/context/TripContext';
+
 export default function TripBooking() {
   const router = useRouter();
   const { data: session } = useSession();
   const { id } = router.query;
 
-  const [trip, setTrip] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { trip, setTrip , passengerCount, setPassengerCount, selectedClass, setSelectedClass } = useTrip();
+
+  const [loading, setLoading] = useState(!trip);
   const [error, setError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [bookingId, setBookingId] = useState(null);
-  const [passengerCount, setPassengerCount] = useState(1);
-
-  // Fetch trip data
   useEffect(() => {
-    if (!id) return;
+    if (!id || trip) return;
 
     const fetchTrip = async () => {
       try {
         const res = await fetch(`/api/trips/${id}`);
         if (!res.ok) {
-          if (res.status === 404) {
-            setError('Trip not found');
-          } else {
-            throw new Error('Failed to fetch trip details');
-          }
+          setError(res.status === 404 ? 'Trip not found' : 'Failed to fetch trip details');
           return;
         }
         const data = await res.json();
@@ -44,8 +40,7 @@ export default function TripBooking() {
     fetchTrip();
   }, [id]);
 
-  // Handle booking submission
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async () => {
     if (!session) {
       router.push('/auth/signin');
       return;
@@ -54,9 +49,7 @@ export default function TripBooking() {
     try {
       const res = await fetch('/api/user/bookings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'trip',
           itemId: id,
@@ -65,9 +58,7 @@ export default function TripBooking() {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error('Failed to create booking');
-      }
+      if (!res.ok) throw new Error('Failed to create booking');
 
       const data = await res.json();
       setBookingId(data.booking.bookingId);
@@ -84,15 +75,8 @@ export default function TripBooking() {
     }
   };
 
-  // Handle view bookings click
-  const handleViewBookings = () => {
-    router.push('/bookings');
-  };
-
-  // Handle back button click
-  const handleBackClick = () => {
-    router.back();
-  };
+  const handleViewBookings = () => router.push('/profile/bookings');
+  const handleBackClick = () => router.back();
 
   if (bookingSuccess && trip) {
     return (
@@ -138,7 +122,6 @@ export default function TripBooking() {
             passengerCount={passengerCount}
             companyField="tourCompany"
           />
-
           <BookingForm
             type="trip"
             color="green"
@@ -151,4 +134,4 @@ export default function TripBooking() {
       )}
     </BookingLayout>
   );
-} 
+}
