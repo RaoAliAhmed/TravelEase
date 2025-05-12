@@ -17,7 +17,6 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     origin: '',
     destination: '',
     features: '',
-    // Specific to different types
     flightNumber: '',
     airline: '',
     duration: '',
@@ -33,55 +32,36 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
 
   useEffect(() => {
     if (initialData) {
-      // Convert dates to the right format for input
       const formattedData = { ...initialData };
-      if (formattedData.startDate) {
-        // Split the date and time if stored as a single value
-        if (typeof formattedData.startDate === 'string' && formattedData.startDate.includes('T')) {
-          const [date, time] = formattedData.startDate.split('T');
-          formattedData.startDate = date;
-          formattedData.startTime = time.substring(0, 5); // HH:MM
-        }
+      if (formattedData.startDate && typeof formattedData.startDate === 'string' && formattedData.startDate.includes('T')) {
+        const [date, time] = formattedData.startDate.split('T');
+        formattedData.startDate = date;
+        formattedData.startTime = time.substring(0, 5);
       }
-      
-      if (formattedData.endDate) {
-        if (typeof formattedData.endDate === 'string' && formattedData.endDate.includes('T')) {
-          const [date, time] = formattedData.endDate.split('T');
-          formattedData.endDate = date;
-          formattedData.endTime = time.substring(0, 5); // HH:MM
-        }
+      if (formattedData.endDate && typeof formattedData.endDate === 'string' && formattedData.endDate.includes('T')) {
+        const [date, time] = formattedData.endDate.split('T');
+        formattedData.endDate = date;
+        formattedData.endTime = time.substring(0, 5);
       }
-      
       if (Array.isArray(formattedData.features)) {
         formattedData.features = formattedData.features.join(', ');
       }
-      
       if (Array.isArray(formattedData.amenities)) {
         formattedData.amenities = formattedData.amenities.join(', ');
       }
-      
       if (Array.isArray(formattedData.activities)) {
         formattedData.activities = formattedData.activities.join(', ');
       }
-      
       setFormData(prev => ({ ...prev, ...formattedData }));
     }
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // Handle number inputs
-    if (name === 'price' || name === 'duration' || name === 'seats' || name === 'availableSpots') {
-      setFormData({
-        ...formData,
-        [name]: value === '' ? '' : parseInt(value, 10)
-      });
+    if (["price", "duration", "seats", "availableSpots"].includes(name)) {
+      setFormData({ ...formData, [name]: value === '' ? '' : parseInt(value, 10) });
     } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+      setFormData({ ...formData, [name]: value });
     }
   };
 
@@ -90,51 +70,46 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     setError('');
     setLoading(true);
 
-    // Validation
     if (!formData.name || !formData.price || !formData.origin || !formData.destination) {
       setError('Please fill in all required fields');
       setLoading(false);
       return;
     }
 
-    // Format data for API
     const payload = { ...formData };
-    
-    // Convert comma-separated strings to arrays
-    if (payload.features && typeof payload.features === 'string') {
+
+    if (typeof payload.features === 'string') {
       payload.features = payload.features.split(',').map(item => item.trim()).filter(Boolean);
     }
-    
-    if (payload.amenities && typeof payload.amenities === 'string') {
+    if (typeof payload.amenities === 'string') {
       payload.amenities = payload.amenities.split(',').map(item => item.trim()).filter(Boolean);
     }
-    
-    if (payload.activities && typeof payload.activities === 'string') {
+    if (typeof payload.activities === 'string') {
       payload.activities = payload.activities.split(',').map(item => item.trim()).filter(Boolean);
     }
-    
-    // Combine date and time fields
+
     if (payload.startDate && payload.startTime) {
-      payload.startDate = new Date(`${payload.startDate}T${payload.startTime}`);
+      const start = new Date(`${payload.startDate}T${payload.startTime}`);
+      payload.startDate = isNaN(start) ? null : start.toISOString();
     }
-    
     if (payload.endDate && payload.endTime) {
-      payload.endDate = new Date(`${payload.endDate}T${payload.endTime}`);
+      const end = new Date(`${payload.endDate}T${payload.endTime}`);
+      payload.endDate = isNaN(end) ? null : end.toISOString();
     }
-    
-    // Remove unused fields based on type
+
+    delete payload.startTime;
+    delete payload.endTime;
+    delete payload._id;
+
     const fieldsToKeep = [
       'name', 'description', 'price', 'image', 'startDate', 'endDate', 'origin', 'destination', 'features',
       ...(type === 'flight' ? ['flightNumber', 'airline', 'duration', 'seats'] : []),
       ...(type === 'bus' ? ['busNumber', 'busType', 'amenities', 'duration', 'seats'] : []),
       ...(type === 'trip' ? ['tripType', 'accommodation', 'activities', 'duration', 'availableSpots'] : [])
     ];
-    
-    // Clean up unused fields and temporary fields
+
     Object.keys(payload).forEach(key => {
-      if (!fieldsToKeep.includes(key) || key === 'startTime' || key === 'endTime') {
-        delete payload[key];
-      }
+      if (!fieldsToKeep.includes(key)) delete payload[key];
     });
 
     try {
@@ -148,9 +123,7 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     } finally {
       setLoading(false);
     }
-  };
-
-  // Common fields for all types
+  };  // Common fields for all types
   const commonFields = (
     <>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

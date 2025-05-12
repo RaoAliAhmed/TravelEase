@@ -39,11 +39,18 @@ export default function EditBus({ initialBus }) {
     setError('');
     try {
       const { _id, ...updateData } = busData;
+      // Remove empty string fields
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === '') {
+          delete updateData[key];
+        }
+      });
       console.log('Submitting update for bus:', id, updateData);
       const response = await fetch(`/api/buses/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData),
+        credentials: 'include',
       });
 
       if (!response.ok) {
