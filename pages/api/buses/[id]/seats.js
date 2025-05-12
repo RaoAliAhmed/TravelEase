@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     
     if (!bus) {
       client.close();
-      return res.status(404).json({ message: 'Bus not found' });
+      return res.status(404).json({ message: 'Bus not found in Seats Update' });
     }
 
     // Update the seat count

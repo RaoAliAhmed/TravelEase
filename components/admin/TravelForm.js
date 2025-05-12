@@ -1,459 +1,165 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+
+function Input({ label, name, type = 'text', value, onChange, ...rest }) {
+  return (
+    <div>
+      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        value={value ?? ''}
+        onChange={onChange}
+        className="block w-full rounded-md border-gray-300 px-4 py-2 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        {...rest}
+      />
+    </div>
+  );
+}
 
 export default function TravelForm({ type, initialData, onSubmit, isEditMode = false }) {
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    name: '', price: '', seats: '', origin: '', destination: '',
+    startDate: '', startTime: '', endDate: '', endTime: '',
+    image: '', description: '', flightNumber: '', airline: '', duration: '',
+    busNumber: '', busType: '', amenities: '', features: '',
+    tripType: '', accommodation: '', activities: '', availableSpots: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    image: '',
-    startDate: '',
-    startTime: '',
-    endDate: '',
-    endTime: '',
-    origin: '',
-    destination: '',
-    features: '',
-    flightNumber: '',
-    airline: '',
-    duration: '',
-    busNumber: '',
-    busType: '',
-    amenities: '',
-    tripType: '',
-    accommodation: '',
-    activities: '',
-    seats: '',
-    availableSpots: '',
-  });
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
-      const formattedData = { ...initialData };
-      if (formattedData.startDate && typeof formattedData.startDate === 'string' && formattedData.startDate.includes('T')) {
-        const [date, time] = formattedData.startDate.split('T');
-        formattedData.startDate = date;
-        formattedData.startTime = time.substring(0, 5);
+    if (!initialized && initialData) {
+      const formatted = { ...initialData };
+      if (formatted.startDate?.includes('T')) {
+        const [d, t] = formatted.startDate.split('T');
+        formatted.startDate = d;
+        formatted.startTime = t?.substring(0, 5);
       }
-      if (formattedData.endDate && typeof formattedData.endDate === 'string' && formattedData.endDate.includes('T')) {
-        const [date, time] = formattedData.endDate.split('T');
-        formattedData.endDate = date;
-        formattedData.endTime = time.substring(0, 5);
+      if (formatted.endDate?.includes('T')) {
+        const [d, t] = formatted.endDate.split('T');
+        formatted.endDate = d;
+        formatted.endTime = t?.substring(0, 5);
       }
-      if (Array.isArray(formattedData.features)) {
-        formattedData.features = formattedData.features.join(', ');
-      }
-      if (Array.isArray(formattedData.amenities)) {
-        formattedData.amenities = formattedData.amenities.join(', ');
-      }
-      if (Array.isArray(formattedData.activities)) {
-        formattedData.activities = formattedData.activities.join(', ');
-      }
-      setFormData(prev => ({ ...prev, ...formattedData }));
+      ['features', 'amenities', 'activities'].forEach(k => {
+        if (Array.isArray(formatted[k])) formatted[k] = formatted[k].join(', ');
+      });
+      setFormData(prev => ({ ...prev, ...formatted }));
+      setInitialized(true);
     }
-  }, [initialData]);
+  }, [initialData, initialized]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    if (["price", "duration", "seats", "availableSpots"].includes(name)) {
-      setFormData({ ...formData, [name]: value === '' ? '' : parseInt(value, 10) });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    if (!formData.name || !formData.price || !formData.origin || !formData.destination) {
-      setError('Please fill in all required fields');
-      setLoading(false);
-      return;
+    const required = ['name', 'price', 'origin', 'destination'];
+    for (let field of required) {
+      if (!formData[field]) {
+        setError(`Field "${field}" is required.`);
+        setLoading(false);
+        return;
+      }
     }
 
     const payload = { ...formData };
+    payload.price = parseFloat(payload.price);
+    payload.duration = Number(payload.duration);
+    payload.seats = Number(payload.seats);
+    payload.availableSpots = Number(payload.availableSpots);
 
-    if (typeof payload.features === 'string') {
-      payload.features = payload.features.split(',').map(item => item.trim()).filter(Boolean);
-    }
-    if (typeof payload.amenities === 'string') {
-      payload.amenities = payload.amenities.split(',').map(item => item.trim()).filter(Boolean);
-    }
-    if (typeof payload.activities === 'string') {
-      payload.activities = payload.activities.split(',').map(item => item.trim()).filter(Boolean);
-    }
+    ['features', 'amenities', 'activities'].forEach(k => {
+      if (typeof payload[k] === 'string') {
+        payload[k] = payload[k].split(',').map(x => x.trim()).filter(Boolean);
+      }
+    });
 
     if (payload.startDate && payload.startTime) {
-      const start = new Date(`${payload.startDate}T${payload.startTime}`);
-      payload.startDate = isNaN(start) ? null : start.toISOString();
+      const d = new Date(`${payload.startDate}T${payload.startTime}`);
+      payload.startDate = isNaN(d) ? null : d.toISOString();
     }
     if (payload.endDate && payload.endTime) {
-      const end = new Date(`${payload.endDate}T${payload.endTime}`);
-      payload.endDate = isNaN(end) ? null : end.toISOString();
+      const d = new Date(`${payload.endDate}T${payload.endTime}`);
+      payload.endDate = isNaN(d) ? null : d.toISOString();
     }
 
     delete payload.startTime;
     delete payload.endTime;
     delete payload._id;
 
-    const fieldsToKeep = [
-      'name', 'description', 'price', 'image', 'startDate', 'endDate', 'origin', 'destination', 'features',
-      ...(type === 'flight' ? ['flightNumber', 'airline', 'duration', 'seats'] : []),
-      ...(type === 'bus' ? ['busNumber', 'busType', 'amenities', 'duration', 'seats'] : []),
-      ...(type === 'trip' ? ['tripType', 'accommodation', 'activities', 'duration', 'availableSpots'] : [])
-    ];
-
-    Object.keys(payload).forEach(key => {
-      if (!fieldsToKeep.includes(key)) delete payload[key];
-    });
-
     try {
       await onSubmit(payload);
-      // Ensure we always use 'buses' for bus type
-      const urlType = type === 'bus' ? 'buses' : `${type}s`;
-      router.push(`/admin/${urlType}`);
     } catch (err) {
-      setError(err.message || 'Something went wrong');
-      console.error(`Error submitting ${type}:`, err);
+      setError(err.message || 'Submission failed');
     } finally {
       setLoading(false);
-    }
-  };  // Common fields for all types
-  const commonFields = (
-    <>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Name*</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Price (USD)*</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            required
-            min="0"
-            step="0.01"
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            {type === 'trip' ? 'Available Spots*' : 'Seats*'}
-          </label>
-          <input
-            type="number"
-            name={type === 'trip' ? 'availableSpots' : 'seats'}
-            value={type === 'trip' ? formData.availableSpots || '' : formData.seats || ''}
-            onChange={handleChange}
-            required
-            min="1"
-            step="1"
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder={type === 'trip' ? 'Number of spots' : 'Number of seats'}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Description</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Image</label>
-        <input
-          type="url"
-          name="image"
-          value={formData.image}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          placeholder="https://images.unsplash.com/..."
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Origin*</label>
-          <input
-            type="text"
-            name="origin"
-            value={formData.origin}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Destination*</label>
-          <input
-            type="text"
-            name="destination"
-            value={formData.destination}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Departure Date</label>
-          <input
-            type="date"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Departure Time</label>
-          <input
-            type="time"
-            name="startTime"
-            value={formData.startTime}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Arrival Date</label>
-          <input
-            type="date"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Arrival Time</label>
-          <input
-            type="time"
-            name="endTime"
-            value={formData.endTime}
-            onChange={handleChange}
-            cclassName="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-      </div>
-    </>
-  );
-
-  // Type-specific fields
-  const typeSpecificFields = () => {
-    switch (type) {
-      case 'flight':
-        return (
-          <>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Flight Number</label>
-                <input
-                  type="text"
-                  name="flightNumber"
-                  value={formData.flightNumber}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Airline</label>
-                <input
-                  type="text"
-                  name="airline"
-                  value={formData.airline}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Duration (minutes)</label>
-                <input
-                  type="number"
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  min="0"
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Features (comma-separated)</label>
-              <input
-                type="text"
-                name="features"
-                value={formData.features}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="WiFi, Extra Legroom, Meal Service"
-              />
-            </div>
-          </>
-        );
-      case 'bus':
-        return (
-          <>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Bus Number</label>
-                <input
-                  type="text"
-                  name="busNumber"
-                  value={formData.busNumber}
-                  onChange={handleChange}
-                 className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Bus Type</label>
-                <input
-                  type="text"
-                  name="busType"
-                  value={formData.busType}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder="Luxury, Economy, Express"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Duration (minutes)</label>
-                <input
-                  type="number"
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  min="0"
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Amenities (comma-separated)</label>
-              <input
-                type="text"
-                name="amenities"
-                value={formData.amenities}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="WiFi, Bathroom, Power Outlets"
-              />
-            </div>
-          </>
-        );
-      case 'trip':
-        return (
-          <>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Trip Type</label>
-                <input
-                  type="text"
-                  name="tripType"
-                  value={formData.tripType}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder="Adventure, Cultural, Beach, Mountain"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Duration (days)</label>
-                <input
-                  type="number"
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  min="1"
-                  className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Accommodation</label>
-              <input
-                type="text"
-                name="accommodation"
-                value={formData.accommodation}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="Hotel, Hostel, Resort"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Activities (comma-separated)</label>
-              <textarea
-                name="activities"
-                value={formData.activities}
-                onChange={handleChange}
-                rows={2}
-                className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="Hiking, City Tour, Beach Activities"
-              />
-            </div>
-          </>
-        );
-      default:
-        return null;
     }
   };
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-6">{isEditMode ? `Edit ${type}` : `Create new ${type}`}</h2>
-      
-      {error && (
-        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-          {error}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {commonFields}
-        {typeSpecificFields()}
-        
-        <div className="pt-5 flex justify-end space-x-3">
+    <div className="bg-white p-6 rounded-xl shadow-md max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        {isEditMode ? `Edit ${type}` : `Create ${type}`}
+      </h2>
+      {error && <div className="mb-4 text-red-600 font-medium">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
+        <Input label="Name*" name="name" value={formData.name} onChange={handleChange} required />
+        <Input label="Price (USD)*" name="price" type="text" value={formData.price} onChange={handleChange} required />
+        <Input label="Seats*" name="seats" type="text" value={formData.seats} onChange={handleChange} required />
+        <Input label="Origin*" name="origin" value={formData.origin} onChange={handleChange} required />
+        <Input label="Destination*" name="destination" value={formData.destination} onChange={handleChange} required />
+        <Input label="Image URL" name="image" type="url" value={formData.image} onChange={handleChange} />
+        <Input label="Description" name="description" value={formData.description} onChange={handleChange} className="md:col-span-2" />
+        <Input label="Departure Date" name="startDate" type="date" value={formData.startDate} onChange={handleChange} />
+        <Input label="Departure Time" name="startTime" type="time" value={formData.startTime} onChange={handleChange} />
+        <Input label="Arrival Date" name="endDate" type="date" value={formData.endDate} onChange={handleChange} />
+        <Input label="Arrival Time" name="endTime" type="time" value={formData.endTime} onChange={handleChange} />
+
+        {type === 'flight' && <>
+          <Input label="Flight Number" name="flightNumber" value={formData.flightNumber} onChange={handleChange} />
+          <Input label="Airline" name="airline" value={formData.airline} onChange={handleChange} />
+          <Input label="Duration (minutes)" name="duration" type="text" value={formData.duration} onChange={handleChange} />
+          <Input label="Features (comma-separated)" name="features" value={formData.features} onChange={handleChange} className="md:col-span-2" />
+        </>}
+
+        {type === 'bus' && <>
+          <Input label="Bus Number" name="busNumber" value={formData.busNumber} onChange={handleChange} />
+          <Input label="Bus Type" name="busType" value={formData.busType} onChange={handleChange} />
+          <Input label="Duration (minutes)" name="duration" type="text" value={formData.duration} onChange={handleChange} />
+          <Input label="Amenities (comma-separated)" name="amenities" value={formData.amenities} onChange={handleChange} className="md:col-span-2" />
+        </>}
+
+        {type === 'trip' && <>
+          <Input label="Trip Type" name="tripType" value={formData.tripType} onChange={handleChange} />
+          <Input label="Accommodation" name="accommodation" value={formData.accommodation} onChange={handleChange} />
+          <Input label="Duration (days)" name="duration" type="text" value={formData.duration} onChange={handleChange} />
+          <Input label="Available Spots" name="availableSpots" type="text" value={formData.availableSpots} onChange={handleChange} />
+          <Input label="Activities (comma-separated)" name="activities" value={formData.activities} onChange={handleChange} className="md:col-span-2" />
+        </>}
+
+        <div className="md:col-span-2 flex justify-end gap-4">
           <button
             type="button"
-            onClick={() => router.back()}
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            Cancel
-          </button>
+            onClick={() => router.push('/admin')}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+          >Cancel</button>
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 block w-full rounded-md border-black-300 text-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            {loading ? 'Saving...' : isEditMode ? 'Update' : 'Create'}
-          </button>
+            className={`px-4 py-2 rounded-md text-white ${loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+          >{loading ? 'Saving...' : isEditMode ? 'Update' : 'Create'}</button>
         </div>
       </form>
     </div>
   );
-} 
+}

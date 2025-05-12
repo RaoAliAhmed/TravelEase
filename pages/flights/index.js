@@ -34,7 +34,7 @@ export default function Flights({ flights }) {
         sortBy={sortBy}
         onSortChange={setSortBy}
         bgColor="pink"
-        placeholder="Search by city, airline..."
+              placeholder="Search by city, airline..."
       />
       
       {/* Main Content */}

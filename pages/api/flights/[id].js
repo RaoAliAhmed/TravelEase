@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     query: { id },
     method,
   } = req;
-
+  console.log("id",id)
   try {
     const { db } = await connectToDatabase();
     const flightsCollection = db.collection('flights');
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
           // Update a flight
           const updateData = { ...req.body };
           
-          // Convert string dates to Date objects
+          
           if (updateData.startDate) {
             updateData.startDate = new Date(updateData.startDate);
           }
@@ -58,7 +58,8 @@ export default async function handler(req, res) {
             { returnDocument: 'after' }
           );
           
-          if (!updatedFlight.value) {
+          
+          if (!updatedFlight) {
             return res.status(404).json({ message: 'Flight not found' });
           }
           

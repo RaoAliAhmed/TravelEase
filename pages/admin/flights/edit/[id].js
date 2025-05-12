@@ -37,6 +37,7 @@ export default function EditFlight({ initialFlight }) {
 
   const handleSubmit = async (flightData) => {
     try {
+      
       const response = await fetch(`/api/flights/${id}`, {
         method: 'PUT',
         headers: {
