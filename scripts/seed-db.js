@@ -37,7 +37,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.5,
         seats: 120,
-        image: '/images/flight-khi-lhe.jpg'
+        image: 'https://images.unsplash.com/photo-1569629743817-70d8db6c323b?q=80&w=1000'
       },
       {
         from: 'Lahore',
@@ -51,7 +51,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.2,
         seats: 80,
-        image: '/images/flight-lhe-isb.jpg'
+        image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000'
       },
       {
         from: 'Islamabad',
@@ -65,7 +65,7 @@ async function seedDatabase() {
         featured: false,
         rating: 3.8,
         seats: 100,
-        image: '/images/flight-isb-khi.jpg'
+        image: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?q=80&w=1000'
       },
       {
         from: 'Karachi',
@@ -79,7 +79,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.8,
         seats: 220,
-        image: '/images/flight-khi-dxb.jpg'
+        image: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=1000'
       },
       {
         from: 'Lahore',
@@ -93,7 +93,7 @@ async function seedDatabase() {
         featured: false,
         rating: 4.0,
         seats: 180,
-        image: '/images/flight-lhe-dxb.jpg'
+        image: 'https://images.unsplash.com/photo-1559628233-100c798642d4?q=80&w=1000'
       },
       {
         from: 'Islamabad',
@@ -107,7 +107,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.7,
         seats: 250,
-        image: '/images/flight-isb-bkk.jpg'
+        image: 'https://images.unsplash.com/photo-1517479149777-5f3b1511d5ad?q=80&w=1000'
       }
     ];
 
@@ -125,7 +125,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.3,
         seats: 40,
-        image: '/images/bus-isb-lhe.jpg'
+        image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1000'
       },
       {
         from: 'Lahore',
@@ -139,7 +139,7 @@ async function seedDatabase() {
         featured: false,
         rating: 3.9,
         seats: 45,
-        image: '/images/bus-lhe-fsd.jpg'
+        image: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=1000'
       },
       {
         from: 'Multan',
@@ -153,7 +153,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.1,
         seats: 38,
-        image: '/images/bus-mul-lhe.jpg'
+        image: 'https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?q=80&w=1000'
       },
       {
         from: 'Karachi',
@@ -167,7 +167,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.0,
         seats: 42,
-        image: '/images/bus-khi-hyd.jpg'
+        image: 'https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?q=80&w=1000'
       },
       {
         from: 'Peshawar',
@@ -181,7 +181,7 @@ async function seedDatabase() {
         featured: false,
         rating: 3.7,
         seats: 35,
-        image: '/images/bus-pew-isb.jpg'
+        image: 'https://images.unsplash.com/photo-1596979240348-7c5d83c42369?q=80&w=1000'
       }
     ];
 
@@ -198,7 +198,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.8,
         availableSpots: 15,
-        image: '/images/trip-dubai.jpg'
+        image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1000'
       },
       {
         name: 'Northern Areas Explorer',
@@ -211,7 +211,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.9,
         availableSpots: 10,
-        image: '/images/trip-hunza.jpg'
+        image: 'https://images.unsplash.com/photo-1586076100131-32505c71d0d2?q=80&w=1000'
       },
       {
         name: 'Bangkok Adventure',
@@ -224,7 +224,7 @@ async function seedDatabase() {
         featured: true,
         rating: 4.6,
         availableSpots: 8,
-        image: '/images/trip-bangkok.jpg'
+        image: 'https://images.unsplash.com/photo-1508009603885-50cf7c8dd0d5?q=80&w=1000'
       },
       {
         name: 'Coastal Karachi',
@@ -237,7 +237,7 @@ async function seedDatabase() {
         featured: false,
         rating: 4.0,
         availableSpots: 20,
-        image: '/images/trip-karachi.jpg'
+        image: 'https://images.unsplash.com/photo-1566618501422-e13c0f2dbfd2?q=80&w=1000'
       },
       {
         name: 'Historical Lahore',
@@ -250,7 +250,7 @@ async function seedDatabase() {
         featured: false,
         rating: 4.4,
         availableSpots: 25,
-        image: '/images/trip-lahore.jpg'
+        image: 'https://images.unsplash.com/photo-1567604130959-7a3d871d1c9d?q=80&w=1000'
       }
     ];
 

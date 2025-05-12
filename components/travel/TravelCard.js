@@ -63,10 +63,11 @@ export default function TravelCard({
       {/* Image */}
       <div className="relative h-48 w-full">
         <Image
-          src={item.imageUrl || `/images/${type}-placeholder.jpg`}
+          src={item.image || `/images/${type}-placeholder.jpg`}
           alt={item.name || `${from} to ${to}`}
-          layout="fill"
-          objectFit="cover"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
         />
       </div>
 

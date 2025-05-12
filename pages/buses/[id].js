@@ -58,11 +58,11 @@ function BusDetailPageInner({ bus }) {
             <TravelDetailImage
               imageUrl={bus.image}
               alt={`${from} to ${to}`}
-              type="buse"
+              type="bus"
             />
             <TravelDetailInfo
               item={bus}
-              type="buse"
+              type="bus"
               color="blue"
               showSeats={true}
               showCompany={true}
@@ -72,7 +72,7 @@ function BusDetailPageInner({ bus }) {
           <div className="lg:col-span-1">
             <TravelDetailBooking
               item={bus}
-              type="buse"
+              type="bus"
               color="blue"
               showClass={true}
               classes={['Economy', 'Business', 'First Class']}
