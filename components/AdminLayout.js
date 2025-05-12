@@ -110,27 +110,28 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
         <div className="absolute bottom-0 w-full">
-          <button
-            onClick={handleSignOut}
-            className={`flex items-center px-2 py-2 mb-4 w-full ${
-              isSidebarOpen ? 'justify-start' : 'justify-center'
-            } text-indigo-100 hover:bg-indigo-700 rounded-md transition-colors duration-200`}
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            {isSidebarOpen && <span className="ml-4">Logout</span>}
-          </button>
+        <button
+  onClick={handleSignOut}
+  className={`flex items-center px-2 py-2 mb-4 ${
+    isSidebarOpen ? 'justify-start' : 'justify-center'
+  } text-indigo-100 hover:bg-indigo-700 rounded-md transition-colors duration-200`}
+>
+  <svg
+    className="h-6 w-6"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+    />
+  </svg>
+  {isSidebarOpen && <span className="ml-4">Logout</span>}
+</button>
+
         </div>
       </div>
 
