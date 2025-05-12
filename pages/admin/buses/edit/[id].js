@@ -36,39 +36,27 @@ export default function EditBus({ initialBus }) {
   }, [id, initialBus]);
 
   const handleSubmit = async (busData) => {
-    setError('');
     try {
-      const { _id, ...updateData } = busData;
-      // Remove empty string fields
-      Object.keys(updateData).forEach(key => {
-        if (updateData[key] === '') {
-          delete updateData[key];
-        }
-      });
-      console.log('Submitting update for bus:', id, updateData);
       const response = await fetch(`/api/buses/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData),
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(busData),
       });
 
       if (!response.ok) {
-        let errorMessage = 'Failed to update bus';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (_) {}
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update bus');
       }
 
       return router.push('/admin/buses');
     } catch (error) {
+      console.error('Error updating bus:', error);
       setError(error.message);
       throw error;
     }
   };
-  
 
   if (loading) {
     return (

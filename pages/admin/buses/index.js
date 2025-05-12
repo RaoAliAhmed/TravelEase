@@ -50,7 +50,7 @@ export default function AdminBuses({ initialBuses }) {
         <DataTable 
           data={buses} 
           columns={columns} 
-          type="bus"
+          type="buse"
           onDelete={handleDelete}
         />
       </div>
