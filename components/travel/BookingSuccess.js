@@ -1,5 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import { useBus } from '@/context/BusContext';
+import { useFlight } from '@/context/FlightContext';
+import { useTrip } from '@/context/TripContext';
 
 const colorClasses = {
   blue: {
@@ -23,7 +26,7 @@ const colorClasses = {
 };
 
 export default function BookingSuccess({
-  type,
+  type = 'bus',
   color = 'blue',
   bookingId,
   from,
@@ -36,6 +39,20 @@ export default function BookingSuccess({
 }) {
   const colors = colorClasses[color] || colorClasses.blue;
   const typeTitle = type.charAt(0).toUpperCase() + type.slice(1);
+
+  // 1. Get context based on type
+  const busContext = useBus();
+  const flightContext = useFlight();
+  const tripContext = useTrip();
+  const context = { bus: busContext, flight: flightContext, trip: tripContext }[type] || {};
+
+  // 2. Destructure context values with fallback
+  const {
+    passengerCount = 1,
+    selectedClass,
+    basePrice,
+    totalPrice: contextTotalPrice
+  } = context;
 
   // Format date with validation
   const formatDate = (dateValue) => {
@@ -112,7 +129,7 @@ export default function BookingSuccess({
           <div className="flex justify-between pt-4 border-t">
             <span className="font-semibold">Total Amount</span>
             <span className={`font-bold ${colors.text}`}>
-              ${totalPrice.toFixed(2)}
+              ${Number(contextTotalPrice || 0).toFixed(2)}
             </span>
           </div>
         </div>

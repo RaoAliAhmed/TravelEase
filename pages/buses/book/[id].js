@@ -15,7 +15,7 @@ function BusBookingPageInner() {
   const { id } = router.query;
   const { data: session } = useSession();
 
-  const { bus, setBus, passengerCount, setPassengerCount, selectedClass, setSelectedClass } = useBus();
+  const { bus, setBus, passengerCount, setPassengerCount, selectedClass, setSelectedClass,totalPrice } = useBus();
 
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState(null);
@@ -67,7 +67,7 @@ function BusBookingPageInner() {
           type: "bus",
           itemId: id,
           passengers: passengerCount,
-          totalPrice: (selectedClass?.price || bus.price) * passengerCount,
+          totalPrice: totalPrice,
           contactInfo: formData,
           selectedClass: selectedClass ? selectedClass.name : 'Standard'
         }),
@@ -157,6 +157,5 @@ function BusBookingPageInner() {
   );
 }
 
-// Export with provider wrapper
-
+// Export with provider wrapp
 export default BusBookingPageInner;

@@ -13,7 +13,7 @@ export default function FlightBooking() {
   const { data: session } = useSession();
   const { id } = router.query;
 
-  const { flight, setFlight, passengerCount, setPassengerCount, selectedClass, setSelectedClass } = useFlight();
+  const { flight, setFlight, passengerCount, setPassengerCount, selectedClass, setSelectedClass, totalPrice, setTotalPrice, basePrice, setBasePrice } = useFlight();
 
   const [loading, setLoading] = useState(!flight);
   const [error, setError] = useState(null);
@@ -81,7 +81,7 @@ export default function FlightBooking() {
           type: 'flight',
           itemId: id,
           passengers: passengerCount,
-          totalPrice: (selectedClass?.price || flight.price) * passengerCount,
+          totalPrice: totalPrice,
           contactInfo: formData,
           selectedClass: selectedClass ? selectedClass.name : 'Economy'
         }),

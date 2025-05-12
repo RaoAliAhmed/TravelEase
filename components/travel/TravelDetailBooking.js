@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { useBus } from '@/context/BusContext';
@@ -43,7 +43,7 @@ export default function TravelDetailBooking({
   }[type];
 
   // Add a fallback in case context is undefined
-  const { passengerCount = 1, setPassengerCount = () => {}, selectedClass = 'Economy', setSelectedClass = () => {} } = context || {};
+   const { passengerCount = 1, setPassengerCount = () => {}, selectedClass = 'Economy', setSelectedClass = () => {}, totalPrice , setTotalPrice = () => {}, basePrice, setBasePrice = () => {} } = context || {};
 
   
   const colors = colorClasses[color] || colorClasses.blue;
@@ -59,7 +59,10 @@ export default function TravelDetailBooking({
     }
   };
 
-  const totalPrice = (item.price * passengerCount * getClassMultiplier(selectedClass)).toFixed(2);
+  useEffect(() => {
+    setTotalPrice((item.price * passengerCount * getClassMultiplier(selectedClass)).toFixed(2));
+    setBasePrice(item.price * getClassMultiplier(selectedClass));
+  }, [item.price, passengerCount, selectedClass]);
 
   const handleBookClick = () => {
     // Ensure we always use 'buses' for bus type

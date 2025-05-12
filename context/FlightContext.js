@@ -6,6 +6,8 @@ export function FlightProvider({ children }) {
   const [flight, setFlight] = useState(null);
   const [passengerCount, setPassengerCount] = useState(1);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [basePrice, setBasePrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const value = useMemo(() => ({
     flight,
@@ -13,8 +15,12 @@ export function FlightProvider({ children }) {
     passengerCount,
     setPassengerCount,
     selectedClass,
-    setSelectedClass
-  }), [flight, passengerCount, selectedClass]);
+    setSelectedClass,
+    basePrice,
+    setBasePrice,
+    totalPrice,
+    setTotalPrice
+  }), [flight, passengerCount, selectedClass, basePrice, totalPrice]);
 
   return (
     <FlightContext.Provider value={value}>

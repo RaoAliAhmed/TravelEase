@@ -10,6 +10,9 @@ export const BusProvider = ({ children }) => {
   const [passengerCount, setPassengerCount] = useState(1);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [basePrice, setBasePrice] = useState(0);
+
 
   return (
     <BusContext.Provider
@@ -24,6 +27,10 @@ export const BusProvider = ({ children }) => {
         setBookingSuccess,
         bookingId,
         setBookingId,
+        totalPrice,
+        setTotalPrice,
+        basePrice,
+        setBasePrice,
       }}
     >
       {children}
