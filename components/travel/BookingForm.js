@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
-const colorClasses = {
+const colorMap = {
   blue: {
-    button: 'bg-blue-600 hover:bg-blue-700',
-    input: 'focus:border-blue-500 focus:ring-blue-500',
-    label: 'text-blue-600'
+    input: 'focus:ring-blue-500 focus:border-blue-500',
+    button: 'bg-blue-600 hover:bg-blue-700'
   },
   pink: {
-    button: 'bg-pink-600 hover:bg-pink-700',
-    input: 'focus:border-pink-500 focus:ring-pink-500',
-    label: 'text-pink-600'
+    input: 'focus:ring-pink-500 focus:border-pink-500',
+    button: 'bg-pink-600 hover:bg-pink-700'
   },
   green: {
-    button: 'bg-green-600 hover:bg-green-700',
-    input: 'focus:border-green-500 focus:ring-green-500',
-    label: 'text-green-600'
+    input: 'focus:ring-green-500 focus:border-green-500',
+    button: 'bg-green-600 hover:bg-green-700'
   }
 };
 
@@ -31,7 +28,8 @@ export default function BookingForm({
   onClassChange = null
 }) {
   const router = useRouter();
-  const colors = colorClasses[color] || colorClasses.blue;
+  const colors = colorMap[color] || colorMap.blue;
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -46,20 +44,31 @@ export default function BookingForm({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    await onSubmit(formData);
+    onSubmit(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">Contact Information</h2>
+
+      {/* Passenger Count Information */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-gray-700">Number of Passengers:</span>
+          <span className="text-lg font-semibold">{passengerCount}</span>
+        </div>
+        {selectedClass && showClass && (
+          <div className="flex justify-between items-center mt-2">
+            <span className="font-medium text-gray-700">Selected Class:</span>
+            <span className="text-lg font-semibold">{selectedClass.name}</span>
+          </div>
+        )}
+      </div>
 
       {/* Class Selection (if applicable) */}
       {showClass && classes.length > 0 && (
@@ -90,7 +99,7 @@ export default function BookingForm({
       )}
 
       {/* Passenger Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
             First Name
@@ -198,7 +207,7 @@ export default function BookingForm({
 
         <div>
           <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-            ZIP Code
+            Zip/Postal Code
           </label>
           <input
             type="text"
@@ -222,7 +231,7 @@ export default function BookingForm({
             value={formData.specialRequests}
             onChange={handleChange}
             className={`w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 ${colors.input}`}
-          />
+          ></textarea>
         </div>
       </div>
 

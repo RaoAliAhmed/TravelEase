@@ -13,7 +13,7 @@ export default function TripBooking() {
   const { data: session } = useSession();
   const { id } = router.query;
 
-  const { trip, setTrip , passengerCount, setPassengerCount, selectedClass, setSelectedClass } = useTrip();
+  const { trip, setTrip, passengerCount, setPassengerCount } = useTrip();
 
   const [loading, setLoading] = useState(!trip);
   const [error, setError] = useState(null);
@@ -43,9 +43,24 @@ export default function TripBooking() {
     fetchTrip();
   }, [id]);
 
+  // Validate that we have enough spots available
+  useEffect(() => {
+    if (trip && passengerCount > trip.availableSpots) {
+      setError(`Only ${trip.availableSpots} spots available. Please select fewer passengers.`);
+    } else {
+      setError(null);
+    }
+  }, [trip, passengerCount]);
+
   const handleSubmit = async (formData) => {
     if (!session) {
       router.push('/auth/signin');
+      return;
+    }
+
+    // Validate spot availability again
+    if (trip && passengerCount > trip.availableSpots) {
+      setError(`Only ${trip.availableSpots} spots available. Please select fewer passengers.`);
       return;
     }
 
@@ -75,6 +90,7 @@ export default function TripBooking() {
       setBookingId(data.booking.bookingId);
       setBookingSuccess(true);
 
+      // Update available spots - deduct the correct number of spots based on passenger count
       const newSpots = trip.availableSpots - passengerCount;
       await fetch(`/api/trips/${id}/spots`, {
         method: 'PUT',

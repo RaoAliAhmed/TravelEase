@@ -36,6 +36,8 @@ function BusBookingPageInner() {
         }
         const data = await res.json();
         setBus(data);
+        
+        // Initialize with first class option if available
         if (data.classes?.length > 0) {
           setSelectedClass(data.classes[0]);
         }
@@ -49,9 +51,24 @@ function BusBookingPageInner() {
     fetchBus();
   }, [id]);
 
+  // Validate that we have enough seats available
+  useEffect(() => {
+    if (bus && passengerCount > bus.seats) {
+      setError(`Only ${bus.seats} seats available. Please select fewer passengers.`);
+    } else {
+      setError(null);
+    }
+  }, [bus, passengerCount]);
+
   const handleSubmit = async (formData) => {
     if (!session) {
       router.push("/auth/signin");
+      return;
+    }
+
+    // Validate seat availability again
+    if (bus && passengerCount > bus.seats) {
+      setError(`Only ${bus.seats} seats available. Please select fewer passengers.`);
       return;
     }
 
@@ -82,6 +99,7 @@ function BusBookingPageInner() {
       setBookingId(data.booking.bookingId);
       setBookingSuccess(true);
 
+      // Update available seats - deduct the correct number of seats based on passenger count
       const newSeats = bus.seats - passengerCount;
       await fetch(`/api/buses/${id}/seats`, {
         method: "PUT",

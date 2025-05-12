@@ -33,6 +33,8 @@ export default function FlightBooking() {
         }
         const data = await res.json();
         setFlight(data);
+        
+        // Initialize with first class option if available
         if (data.classes && data.classes.length > 0) {
           setSelectedClass(data.classes[0]);
         }
@@ -46,15 +48,24 @@ export default function FlightBooking() {
     fetchFlight();
   }, [id]);
 
+  // Validate that we have enough seats available
   useEffect(() => {
-    if (flight && flight.classes?.length > 0 && !selectedClass) {
-      setSelectedClass(flight.classes[0]);
+    if (flight && passengerCount > flight.seats) {
+      setError(`Only ${flight.seats} seats available. Please select fewer passengers.`);
+    } else {
+      setError(null);
     }
-  }, [flight]);
+  }, [flight, passengerCount]);
 
   const handleSubmit = async (formData) => {
     if (!session) {
       router.push('/auth/signin');
+      return;
+    }
+
+    // Validate seat availability again
+    if (flight && passengerCount > flight.seats) {
+      setError(`Only ${flight.seats} seats available. Please select fewer passengers.`);
       return;
     }
 
@@ -85,7 +96,7 @@ export default function FlightBooking() {
       setBookingId(data.booking.bookingId);
       setBookingSuccess(true);
 
-      // Update available seats
+      // Update available seats - deduct the correct number of seats based on passenger count
       const newSeats = flight.seats - passengerCount;
       await fetch(`/api/flights/${id}/seats`, {
         method: 'PUT',
