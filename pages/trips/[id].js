@@ -6,6 +6,8 @@ import TravelDetailImage from '@/components/travel/TravelDetailImage';
 import TravelDetailInfo from '@/components/travel/TravelDetailInfo';
 import TravelDetailBooking from '@/components/travel/TravelDetailBooking';
 import { useTrip } from '@/context/TripContext';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default function TripDetail({ trip }) {
   const router = useRouter();
@@ -85,33 +87,50 @@ export default function TripDetail({ trip }) {
 
 export async function getStaticProps({ params }) {
   try {
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-    const res = await fetch(`${baseUrl}/api/trips/${params.id}`);
-
-    if (!res.ok) {
-      return { props: { trip: null }, revalidate: 10 };
+    const { id } = params;
+    
+    if (!ObjectId.isValid(id)) {
+      return { props: { trip: null }, revalidate: 60 };
     }
-
-    const trip = await res.json();
-
-    return {
-      props: { trip },
-      revalidate: 10
+    
+    const { db } = await connectToDatabase();
+    const trip = await db.collection('trips').findOne({ _id: new ObjectId(id) });
+    
+    if (!trip) {
+      return { props: { trip: null }, revalidate: 60 };
+    }
+    
+    // Convert ObjectId to string for serialization
+    const serializedTrip = JSON.parse(JSON.stringify(trip, (key, value) => {
+      if (key === '_id') return value.toString();
+      return value;
+    }));
+    
+    return { 
+      props: { trip: serializedTrip },
+      revalidate: 60 // Revalidate every 60 seconds
     };
   } catch (error) {
-    console.error("Error fetching trip:", error);
-    return {
-      props: { trip: null },
-      revalidate: 10
-    };
+    console.error('Error fetching trip details:', error);
+    return { props: { trip: null }, revalidate: 60 };
   }
 }
 
 export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: 'blocking'
-  };
+  try {
+    const { db } = await connectToDatabase();
+    const trips = await db.collection('trips').find({}, { projection: { _id: 1 } }).toArray();
+    
+    const paths = trips.map(trip => ({
+      params: { id: trip._id.toString() }
+    }));
+    
+    return {
+      paths,
+      fallback: true // Allow generation of new pages on-demand
+    };
+  } catch (error) {
+    console.error('Error fetching trip paths:', error);
+    return { paths: [], fallback: true };
+  }
 }

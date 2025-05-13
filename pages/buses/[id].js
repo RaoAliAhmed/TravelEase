@@ -6,6 +6,8 @@ import TravelDetailImage from '@/components/travel/TravelDetailImage';
 import TravelDetailInfo from '@/components/travel/TravelDetailInfo';
 import TravelDetailBooking from '@/components/travel/TravelDetailBooking';
 import { useBus } from '@/context/BusContext';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default function BusDetailPage({ bus }) {
   const router = useRouter();
@@ -84,23 +86,52 @@ export default function BusDetailPage({ bus }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+export async function getStaticPaths() {
+  try {
+    const { db } = await connectToDatabase();
+    const buses = await db.collection('buses').find({}, { projection: { _id: 1 } }).toArray();
+    
+    const paths = buses.map(bus => ({
+      params: { id: bus._id.toString() }
+    }));
+    
+    return {
+      paths,
+      fallback: true // Set to true to allow generation of new pages on-demand
+    };
+  } catch (error) {
+    console.error('Error fetching bus paths:', error);
+    return { paths: [], fallback: true };
+  }
+}
+
+export async function getStaticProps({ params }) {
   try {
     const { id } = params;
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-    const response = await fetch(`${baseUrl}/api/buses/${id}`);
     
-    if (!response.ok) {
-      return { props: { bus: null } };
+    if (!ObjectId.isValid(id)) {
+      return { props: { bus: null }, revalidate: 60 };
     }
     
-    const bus = await response.json();
+    const { db } = await connectToDatabase();
+    const bus = await db.collection('buses').findOne({ _id: new ObjectId(id) });
     
-    return { props: { bus } };
+    if (!bus) {
+      return { props: { bus: null }, revalidate: 60 };
+    }
+    
+    // Convert ObjectId to string for serialization
+    const serializedBus = JSON.parse(JSON.stringify(bus, (key, value) => {
+      if (key === '_id') return value.toString();
+      return value;
+    }));
+    
+    return { 
+      props: { bus: serializedBus },
+      revalidate: 60 // Revalidate every 60 seconds (ISR)
+    };
   } catch (error) {
-    console.error('Error fetching bus:', error);
-    return { props: { bus: null } };
+    console.error('Error fetching bus details:', error);
+    return { props: { bus: null }, revalidate: 60 };
   }
 }

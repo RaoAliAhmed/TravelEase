@@ -29,7 +29,7 @@ export default function AdminUserView({ user }) {
     );
   }
 
-  // Format dates
+  
   const createdAt = user.createdAt ? new Date(user.createdAt) : null;
 
   return (
@@ -66,7 +66,7 @@ export default function AdminUserView({ user }) {
             <dl>
               <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Full name</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.name}</dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{console.log(user.name)}</dd>
               </div>
               <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Email address</dt>
@@ -89,7 +89,8 @@ export default function AdminUserView({ user }) {
               <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Bookings</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.bookings ? user.bookings.length : 0} bookings</dd>
-              </div>
+              </div> 
+              
             </dl>
           </div>
         </div>
@@ -165,12 +166,15 @@ export default function AdminUserView({ user }) {
 }
 
 export async function getServerSideProps({ params }) {
+   console.log("Params",params);
   try {
     const { db } = await connectToDatabase();
     
-    // Validate MongoDB ObjectId
+    
     if (!ObjectId.isValid(params.id)) {
+      console.log("Params",params.id);
       return {
+        
         props: { user: null }
       };
     }
@@ -178,16 +182,22 @@ export async function getServerSideProps({ params }) {
     const user = await db.collection('users').findOne({ _id: new ObjectId(params.id) });
     
     if (!user) {
+      console.log("User not found");
       return {
         props: { user: null }
       };
     }
     
-    // Enhance bookings with item details if possible
+    
     if (user.bookings && user.bookings.length > 0) {
+      console.log("User bookings",user.name);
+      console.log("User bookings",user.bookings.length);
+
       for (let i = 0; i < user.bookings.length; i++) {
         const booking = user.bookings[i];
+        
         if (booking.itemId && ObjectId.isValid(booking.itemId)) {
+          
           const itemId = new ObjectId(booking.itemId);
           let itemDetails = null;
           
@@ -198,11 +208,13 @@ export async function getServerSideProps({ params }) {
           } else if (booking.type === 'trip') {
             itemDetails = await db.collection('trips').findOne({ _id: itemId }, { projection: { name: 1 } });
           }
-          
+          console.log("Item details",itemDetails);
           if (itemDetails) {
             user.bookings[i].itemDetails = {
-              name: itemDetails.name
+              name: itemDetails.name || itemDetails._id.toString()
             };
+          } else {
+            user.bookings[i].itemDetails = null;
           }
         }
       }

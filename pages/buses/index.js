@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import SearchHeader from '@/components/travel/SearchHeader';
 import TravelList from '@/components/travel/TravelList';
+import { connectToDatabase } from '@/lib/mongodb';
 
 export default function Buses({ buses }) {
   const { data: session } = useSession();
@@ -63,34 +64,27 @@ export default function Buses({ buses }) {
   );
 }
 
-// Use SSR for buses since they can change frequently
-export async function getServerSideProps() {
+// Use ISR for buses listing page
+export async function getStaticProps() {
   try {
-    // Get the absolute URL for the API endpoint
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-
-    // Create an API endpoint to get all buses
-    const response = await fetch(`${baseUrl}/api/buses`);
+    const { db } = await connectToDatabase();
+    const buses = await db.collection('buses').find({}).toArray();
     
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    
-    const buses = await response.json();
+    // Serialize for JSON
+    const serializedBuses = JSON.parse(JSON.stringify(buses, (key, value) => {
+      if (key === '_id') return value.toString();
+      return value;
+    }));
     
     return {
-      props: {
-        buses: Array.isArray(buses) ? buses : []
-      }
+      props: { buses: serializedBuses },
+      revalidate: 300 // Revalidate every 5 minutes
     };
   } catch (error) {
     console.error('Error fetching buses:', error);
     return {
-      props: {
-        buses: []
-      }
+      props: { buses: [] },
+      revalidate: 60
     };
   }
 } 

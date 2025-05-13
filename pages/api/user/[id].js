@@ -58,11 +58,11 @@ export default async function handler(req, res) {
           { returnDocument: 'after' }
         );
         
-        if (!updatedUser.value) {
+        if (!updatedUser) {
           return res.status(404).json({ message: 'User not found' });
         }
         
-        return res.status(200).json(updatedUser.value);
+        return res.status(200).json("User Successfully Updated");
       
       case 'DELETE':
         // Delete a user

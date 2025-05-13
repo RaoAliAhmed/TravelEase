@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import AdminLayout from '@/components/AdminLayout';
 import TravelForm from '@/components/admin/TravelForm';
+import { getSession } from 'next-auth/react';
 
 export default function NewFlight() {
   const router = useRouter();
@@ -72,4 +73,24 @@ export default function NewFlight() {
       </div>
     </AdminLayout>
   );
+}
+
+export async function getServerSideProps(context) {
+  // Get the user's session
+  const session = await getSession(context);
+  
+  // If the user is not logged in or not an admin, redirect to the login page
+  if (!session || !session.user?.isAdmin) {
+    return {
+      redirect: {
+        destination: '/auth/login',
+        permanent: false,
+      },
+    };
+  }
+  
+  // If the user is an admin, return empty props (the page will render normally)
+  return {
+    props: {},
+  };
 } 

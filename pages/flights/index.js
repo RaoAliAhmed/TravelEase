@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import SearchHeader from '@/components/travel/SearchHeader';
 import TravelList from '@/components/travel/TravelList';
+import { connectToDatabase } from '@/lib/mongodb';
 
 export default function Flights({ flights }) {
   const { data: session } = useSession();
@@ -34,7 +35,7 @@ export default function Flights({ flights }) {
         sortBy={sortBy}
         onSortChange={setSortBy}
         bgColor="pink"
-        placeholder="Search by city, airline..."
+              placeholder="Search by city, airline..."
       />
       
       {/* Main Content */}
@@ -63,34 +64,27 @@ export default function Flights({ flights }) {
   );
 }
 
-// Use SSR for flights since they can change frequently
-export async function getServerSideProps() {
+// Use ISR for flights listing page
+export async function getStaticProps() {
   try {
-    // Get the absolute URL for the API endpoint
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-
-    // Create an API endpoint to get all flights
-    const response = await fetch(`${baseUrl}/api/flights`);
+    const { db } = await connectToDatabase();
+    const flights = await db.collection('flights').find({}).toArray();
     
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    
-    const flights = await response.json();
+    // Serialize for JSON
+    const serializedFlights = JSON.parse(JSON.stringify(flights, (key, value) => {
+      if (key === '_id') return value.toString();
+      return value;
+    }));
     
     return {
-      props: {
-        flights: Array.isArray(flights) ? flights : []
-      }
+      props: { flights: serializedFlights },
+      revalidate: 300 // Revalidate every 5 minutes
     };
   } catch (error) {
     console.error('Error fetching flights:', error);
     return {
-      props: {
-        flights: []
-      }
+      props: { flights: [] },
+      revalidate: 60
     };
   }
 } 

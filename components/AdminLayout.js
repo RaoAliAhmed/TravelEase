@@ -27,6 +27,7 @@ export default function AdminLayout({ children }) {
     { name: 'Flights', path: '/admin/flights', icon: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8' },
     { name: 'Buses', path: '/admin/buses', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
     { name: 'Trips', path: '/admin/trips', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { name: 'Bookings', path: '/admin/bookings', icon: 'M9 17v-2a4 4 0 014-4h6' },
   ];
 
   const toggleSidebar = () => {
@@ -43,16 +44,16 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <div
         className={`${
-          isSidebarOpen ? 'w-64' : 'w-16'
-        } transition-width duration-300 ease-in-out bg-indigo-800 text-white`}
+          isSidebarOpen ? 'w-64' : 'w-32'
+        } bg-white border-r border-gray-100 flex flex-col h-full transition-width duration-300 ease-in-out`}
       >
         <div className="flex items-center justify-between h-16 px-4">
           {isSidebarOpen && (
-            <span className="text-xl font-semibold">Admin Panel</span>
+            <span className="text-xl font-bold text-blue-700 tracking-tight">Admin Panel</span>
           )}
           <button
             onClick={toggleSidebar}
-            className="p-1 rounded-md hover:bg-indigo-700 focus:outline-none"
+            className="p-1.5 rounded-lg hover:bg-gray-100 focus:outline-none transition-colors duration-200"
           >
             <svg
               className="h-6 w-6"
@@ -78,60 +79,105 @@ export default function AdminLayout({ children }) {
             </svg>
           </button>
         </div>
-        <nav className="mt-5 px-2">
-          {navItems.map((item) => (
+
+        {/* Section Headings and Nav Items */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Dashboard Section */}
+          <div className="mt-6 mb-2 px-4 text-xs font-bold text-gray-400 tracking-widest uppercase">Dashboard</div>
+          <nav className="px-2">
+            {navItems.filter(item => item.name === 'Dashboard').map((item) => (
+              <Link
+                href={item.path}
+                key={item.name}
+                className={`flex items-center gap-3 px-4 py-2.5 my-1 rounded-lg transition
+                  ${router.pathname === item.path || router.pathname.startsWith(`${item.path}/`)
+                    ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50'}
+                `}
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                </svg>
+                {isSidebarOpen && <span>{item.name}</span>}
+              </Link>
+            ))}
+          </nav>
+
+          {/* User Management Section */}
+          <div className="mt-6 mb-2 px-4 text-xs font-bold text-gray-400 tracking-widest uppercase">User Management</div>
+          <nav className="px-2">
+            {navItems.filter(item => ['Users', 'Roles', 'Administrators', 'Faculty', 'Students'].includes(item.name)).map((item) => (
             <Link
             href={item.path}
             key={item.name}
-            className={`flex items-center px-2 py-2 mt-1 rounded-md ${
-              router.pathname === item.path || router.pathname.startsWith(`${item.path}/`)
-                ? 'bg-indigo-900 text-white'
-                : 'text-indigo-100 hover:bg-indigo-700'
-            } transition-colors duration-200`}
+                className={`flex items-center gap-3 px-4 py-2.5 my-1 rounded-lg transition
+                  ${router.pathname === item.path || router.pathname.startsWith(`${item.path}/`)
+                    ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50'}
+                `}
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                </svg>
+                {isSidebarOpen && <span>{item.name}</span>}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Travels Management Section */}
+          <div className="mt-6 mb-2 px-4 text-xs font-bold text-gray-400 tracking-widest uppercase">Travels Management</div>
+          <nav className="px-2">
+            {navItems.filter(item => ['Flights', 'Buses', 'Trips'].includes(item.name)).map((item) => (
+              <Link
+                href={item.path}
+                key={item.name}
+                className={`flex items-center gap-3 px-4 py-2.5 my-1 rounded-lg transition
+                  ${router.pathname === item.path || router.pathname.startsWith(`${item.path}/`)
+                    ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50'}
+                `}
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={item.icon}
-              />
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
             </svg>
-            {isSidebarOpen && (
-              <span className="ml-4">{item.name}</span>
-            )}
+                {isSidebarOpen && <span>{item.name}</span>}
           </Link>
-          
+            ))}
+          </nav>
+
+          {/* Booking Details Section */}
+          <div className="mt-6 mb-2 px-4 text-xs font-bold text-gray-400 tracking-widest uppercase">Booking Details</div>
+          <nav className="px-2">
+            {navItems.filter(item => item.name === 'Bookings').map((item) => (
+              <Link
+                href={item.path}
+                key={item.name}
+                className={`flex items-center gap-3 px-4 py-2.5 my-1 rounded-lg transition
+                  ${router.pathname === item.path || router.pathname.startsWith(`${item.path}/`)
+                    ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50'}
+                `}
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                </svg>
+                {isSidebarOpen && <span>{item.name}</span>}
+              </Link>
           ))}
         </nav>
-        <div className="absolute bottom-0 w-full">
-        <button
-  onClick={handleSignOut}
-  className={`flex items-center px-2 py-2 mb-4 ${
-    isSidebarOpen ? 'justify-start' : 'justify-center'
-  } text-indigo-100 hover:bg-indigo-700 rounded-md transition-colors duration-200`}
->
-  <svg
-    className="h-6 w-6"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-    />
-  </svg>
-  {isSidebarOpen && <span className="ml-4">Logout</span>}
-</button>
+        </div>
 
+        {/* Logout Button */}
+        <div className="mt-auto px-4 pb-4">
+          <button
+            onClick={handleSignOut}
+            className="flex items-center w-full gap-3 px-4 py-2.5 border border-red-200 text-red-500 rounded-lg bg-white hover:bg-red-50 transition font-semibold"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            {isSidebarOpen && <span>Logout</span>}
+          </button>
         </div>
       </div>
 
