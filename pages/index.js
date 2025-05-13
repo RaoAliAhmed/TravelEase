@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { connectToDatabase } from "../lib/mongodb";
 
 // Tabs data
 const TABS = [
@@ -424,40 +425,35 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
 }
 
 // Implement SSR
-export async function getServerSideProps() {
+export async function getStaticProps() {
   try {
-    // Get the absolute URL for the API endpoint
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-
-    // First test the connection
-    const testResponse = await fetch(`${baseUrl}/api/test-connection`);
-    if (!testResponse.ok) {
-      console.error('MongoDB connection test failed');
-      throw new Error('Database connection failed');
-    }
-
-    // Fetch featured content
-    const response = await fetch(`${baseUrl}/api/featured/all`);
+    // Connect directly to the database instead of using API
+    const { db } = await connectToDatabase();
     
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
+    // Get featured content directly from the database
+    const featuredFlights = await db.collection('flights').find({ featured: true }).limit(6).toArray();
+    const featuredBuses = await db.collection('buses').find({ featured: true }).limit(6).toArray();
+    const featuredTrips = await db.collection('trips').find({ featured: true }).limit(6).toArray();
     
-    const featuredContent = await response.json();
-    
-    // Ensure the response has the expected structure
-    const safeContent = {
-      flights: Array.isArray(featuredContent.flights) ? featuredContent.flights : [],
-      buses: Array.isArray(featuredContent.buses) ? featuredContent.buses : [],
-      trips: Array.isArray(featuredContent.trips) ? featuredContent.trips : []
+    // Serialize for JSON
+    const serializedContent = {
+      flights: JSON.parse(JSON.stringify(featuredFlights, (key, value) => {
+        if (key === '_id') return value.toString();
+        return value;
+      })),
+      buses: JSON.parse(JSON.stringify(featuredBuses, (key, value) => {
+        if (key === '_id') return value.toString();
+        return value;
+      })),
+      trips: JSON.parse(JSON.stringify(featuredTrips, (key, value) => {
+        if (key === '_id') return value.toString();
+        return value;
+      }))
     };
-
+    
     return {
-      props: {
-        featuredContent: safeContent
-      }
+      props: { featuredContent: serializedContent },
+      revalidate: 3600 // Revalidate every hour
     };
   } catch (error) {
     console.error('Error fetching featured content:', error);
@@ -469,7 +465,8 @@ export async function getServerSideProps() {
           buses: [],
           trips: []
         }
-      }
+      },
+      revalidate: 300 // Try again in 5 minutes if there was an error
     };
   }
 }

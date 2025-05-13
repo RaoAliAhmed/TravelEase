@@ -6,6 +6,8 @@ import TravelDetailImage from '@/components/travel/TravelDetailImage';
 import TravelDetailInfo from '@/components/travel/TravelDetailInfo';
 import TravelDetailBooking from '@/components/travel/TravelDetailBooking';
 import { useFlight } from '@/context/FlightContext';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default function FlightDetail({ flight }) {
   const router = useRouter();
@@ -82,21 +84,52 @@ export default function FlightDetail({ flight }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+export async function getStaticPaths() {
+  try {
+    const { db } = await connectToDatabase();
+    const flights = await db.collection('flights').find({}, { projection: { _id: 1 } }).toArray();
+    
+    const paths = flights.map(flight => ({
+      params: { id: flight._id.toString() }
+    }));
+    
+    return {
+      paths,
+      fallback: true // Set to true to allow generation of new pages on-demand
+    };
+  } catch (error) {
+    console.error('Error fetching flight paths:', error);
+    return { paths: [], fallback: true };
+  }
+}
+
+export async function getStaticProps({ params }) {
   try {
     const { id } = params;
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-    const response = await fetch(`${baseUrl}/api/flights/${id}`);
-
-    if (!response.ok) return { props: { flight: null } };
-
-    const flight = await response.json();
-
-    return { props: { flight } };
+    
+    if (!ObjectId.isValid(id)) {
+      return { props: { flight: null }, revalidate: 60 };
+    }
+    
+    const { db } = await connectToDatabase();
+    const flight = await db.collection('flights').findOne({ _id: new ObjectId(id) });
+    
+    if (!flight) {
+      return { props: { flight: null }, revalidate: 60 };
+    }
+    
+    // Convert ObjectId to string for serialization
+    const serializedFlight = JSON.parse(JSON.stringify(flight, (key, value) => {
+      if (key === '_id') return value.toString();
+      return value;
+    }));
+    
+    return { 
+      props: { flight: serializedFlight },
+      revalidate: 60 // Revalidate every 60 seconds (ISR)
+    };
   } catch (error) {
     console.error('Error fetching flight details:', error);
-    return { props: { flight: null } };
+    return { props: { flight: null }, revalidate: 60 };
   }
 }

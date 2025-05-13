@@ -3,13 +3,23 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import useSWR from 'swr';
+
+// Fetcher function for SWR
+const fetcher = async (url) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const error = new Error('Failed to fetch user data');
+    error.info = await res.json();
+    error.status = res.status;
+    throw error;
+  }
+  return res.json();
+};
 
 export default function Profile() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -21,6 +31,17 @@ export default function Profile() {
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
 
+  // Use SWR for data fetching
+  const { data: userData, error: swrError, isLoading, mutate } = useSWR(
+    status === 'authenticated' ? '/api/user/profile' : null,
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      refreshInterval: 0 // Don't auto-refresh
+    }
+  );
+
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -28,35 +49,16 @@ export default function Profile() {
     }
   }, [status, router]);
 
-  // Fetch user data
+  // Update form data when user data is loaded
   useEffect(() => {
-    if (status === 'authenticated') {
-      fetchUserData();
-    }
-  }, [status]);
-
-  const fetchUserData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/user/profile');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-      
-      const data = await response.json();
-      setUserData(data);
+    if (userData) {
       setFormData({
         ...formData,
-        name: data.name,
-        email: data.email
+        name: userData.name || '',
+        email: userData.email || ''
       });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [userData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -118,13 +120,13 @@ export default function Profile() {
       
       setFormSuccess('Profile updated successfully');
       setIsEditing(false);
-      fetchUserData(); // Refresh user data
+      mutate(); // Revalidate the data using SWR
     } catch (err) {
       setFormError(err.message);
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow">
@@ -134,13 +136,13 @@ export default function Profile() {
     );
   }
 
-  if (error) {
+  if (swrError) {
     return (
       <div className="bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow">
-          <p className="text-center text-red-500">Error: {error}</p>
+          <p className="text-center text-red-500">Error: {swrError.message}</p>
           <button 
-            onClick={fetchUserData}
+            onClick={() => mutate()}
             className="mt-4 block mx-auto px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Try Again

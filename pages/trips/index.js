@@ -1,46 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import SearchHeader from '@/components/travel/SearchHeader';
 import TravelList from '@/components/travel/TravelList';
+import { connectToDatabase } from '@/lib/mongodb';
 
-export default function Trips({ initialTrips }) {
+export default function Trips({ trips }) {
   const { data: session } = useSession();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('price');
-  const [trips, setTrips] = useState(initialTrips);
-  const [loading, setLoading] = useState(!initialTrips.length);
-  const [error, setError] = useState('');
   
-  // Fetch trips on page load
-  useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        setLoading(true);
-        console.log('Fetching trips from API...');
-        const response = await fetch('/api/trips');
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Error response from API:', response.status, errorData);
-          throw new Error(`Failed to fetch trips: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('Trips fetched successfully:', data.length);
-        setTrips(data);
-        setError('');
-      } catch (err) {
-        console.error('Error fetching trips:', err);
-        setError('Failed to load trips. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
-  }, []);
-
   // Filter trips based on search term
   const filteredTrips = trips.filter(trip => 
     (trip.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,28 +24,6 @@ export default function Trips({ initialTrips }) {
     if (sortBy === 'rating') return b.rating - a.rating;
     return 0;
   });
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <p className="text-red-500 mb-4">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,33 +63,26 @@ export default function Trips({ initialTrips }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   try {
-    // Get the absolute URL for the API endpoint
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.VERCEL_URL || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-
-    // Create an API endpoint to get all trips
-    const response = await fetch(`${baseUrl}/api/trips`);
+    const { db } = await connectToDatabase();
+    const trips = await db.collection('trips').find({}).toArray();
     
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    
-    const trips = await response.json();
+    // Serialize for JSON
+    const serializedTrips = JSON.parse(JSON.stringify(trips, (key, value) => {
+      if (key === '_id') return value.toString();
+      return value;
+    }));
     
     return {
-      props: {
-        initialTrips: Array.isArray(trips) ? trips : []
-      }
+      props: { trips: serializedTrips },
+      revalidate: 300 // Revalidate every 5 minutes
     };
   } catch (error) {
     console.error('Error fetching trips:', error);
     return {
-      props: {
-        initialTrips: []
-      }
+      props: { trips: [] },
+      revalidate: 60
     };
   }
 } 
