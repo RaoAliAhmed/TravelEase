@@ -114,6 +114,7 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
                   <button
                     key={tab.id}
                     onClick={() => {
+                      
                       setActiveTab(tab.id);
                       setSearchResults(null);
                     }}
@@ -214,7 +215,7 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
                         <span className="text-gray-500">{tab.label}</span>
                       </div>
                       {item.image && (
-          <Image
+                    <Image
                           src={item.image}
                           alt={item.name || `${item.from} to ${item.to}`}
                           fill
@@ -274,13 +275,13 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
                           onClick={(e) => {
                             e.stopPropagation();
                             if (session) {
-                              router.push(`/${activeTab}/book/${item._id}`);
+                              router.push(`/${activeTab}/${item._id}`);
                             } else {
                               router.push(`/auth/login?callbackUrl=${encodeURIComponent(`/${activeTab}/${item._id}`)}`);
                             }
                           }}
                         >
-                          {session ? 'Book Now' : 'Sign In to Book'}
+                          {session ? 'View Details' : 'Sign In to Book'}
                         </button>
                       </div>
                     </div>

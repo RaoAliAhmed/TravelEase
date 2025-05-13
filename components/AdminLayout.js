@@ -107,9 +107,9 @@ export default function AdminLayout({ children }) {
           <div className="mt-6 mb-2 px-4 text-xs font-bold text-gray-400 tracking-widest uppercase">User Management</div>
           <nav className="px-2">
             {navItems.filter(item => ['Users', 'Roles', 'Administrators', 'Faculty', 'Students'].includes(item.name)).map((item) => (
-              <Link
-                href={item.path}
-                key={item.name}
+            <Link
+            href={item.path}
+            key={item.name}
                 className={`flex items-center gap-3 px-4 py-2.5 my-1 rounded-lg transition
                   ${router.pathname === item.path || router.pathname.startsWith(`${item.path}/`)
                     ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm'
@@ -136,12 +136,12 @@ export default function AdminLayout({ children }) {
                     ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm'
                     : 'text-gray-500 hover:bg-gray-50'}
                 `}
-              >
+          >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                </svg>
+            </svg>
                 {isSidebarOpen && <span>{item.name}</span>}
-              </Link>
+          </Link>
             ))}
           </nav>
 
@@ -163,8 +163,8 @@ export default function AdminLayout({ children }) {
                 </svg>
                 {isSidebarOpen && <span>{item.name}</span>}
               </Link>
-            ))}
-          </nav>
+          ))}
+        </nav>
         </div>
 
         {/* Logout Button */}

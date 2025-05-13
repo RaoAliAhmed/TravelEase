@@ -38,7 +38,7 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
         const [d, t] = formatted.startDate.split('T');
         formatted.startDate = d;
         formatted.startTime = t?.substring(0, 5);
-      }
+        }
       if (formatted.endDate?.includes('T')) {
         const [d, t] = formatted.endDate.split('T');
         formatted.endDate = d;
@@ -66,9 +66,9 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     for (let field of required) {
       if (!formData[field]) {
         setError(`Field "${field}" is required.`);
-        setLoading(false);
-        return;
-      }
+      setLoading(false);
+      return;
+    }
     }
 
     const payload = { ...formData };
@@ -80,7 +80,7 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
     ['features', 'amenities', 'activities'].forEach(k => {
       if (typeof payload[k] === 'string') {
         payload[k] = payload[k].split(',').map(x => x.trim()).filter(Boolean);
-      }
+    }
     });
 
     if (payload.startDate && payload.startTime) {
@@ -162,4 +162,4 @@ export default function TravelForm({ type, initialData, onSubmit, isEditMode = f
       </form>
     </div>
   );
-}
+} 
