@@ -67,7 +67,7 @@ export default function TripDetail({ trip }) {
               item={trip}
               type="trip"
               color="green"
-              showSeats={false}
+              showSeats={true}
               showCompany={false}
             />
           </div>

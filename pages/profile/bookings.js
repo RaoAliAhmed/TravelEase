@@ -6,6 +6,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import BookingSummary from '@/components/travel/BookingSummary';
 
 export default function Bookings({ initialBookings }) {
+  
   const [bookings, setBookings] = useState(initialBookings);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -144,6 +145,7 @@ export default function Bookings({ initialBookings }) {
           ) : (
             <div className="space-y-6">
               {bookings.map((booking) => {
+                console.log(booking);
                 const itemDetails = booking.itemDetails || {};
                 const bookingType = booking.type;
         
@@ -161,6 +163,7 @@ export default function Bookings({ initialBookings }) {
                           selectedClass={booking.selectedClass}
                           passengerCount={booking.passengers}
                           companyField={companyField}
+                          totalPrice={booking.totalPrice}
                         />
                         {/* Contact Information Section */}
                         {booking.contactInfo && (

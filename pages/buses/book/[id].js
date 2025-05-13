@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useBus, BusProvider } from "@/context/BusContext";
 import BookingLayout from "@/components/travel/BookingLayout";
-import BookingSummary from "@/components/travel/BookingSummary";
+import BookingDetailsContext from "@/components/travel/BookingDetailsContext";
 import BookingForm from "@/components/travel/BookingForm";
 import BookingSuccess from "@/components/travel/BookingSuccess";
 
@@ -130,7 +130,7 @@ function BusBookingPageInner() {
     >
       {bus && (
         <>
-          <BookingSummary
+          <BookingDetailsContext
             item={bus}
             type="bus"
             color="blue"

@@ -1,5 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
+import { useBus } from '@/context/BusContext';
+import { useFlight } from '@/context/FlightContext';
+import { useTrip } from '@/context/TripContext';
 
 const colorClasses = {
   blue: {
@@ -21,10 +24,14 @@ const colorClasses = {
 
 const formatDateTime = (dateValue) => {
   if (!dateValue) return 'Not specified';
+  
   const parsedDate = new Date(dateValue);
+  
+  // Check if date is valid
   if (isNaN(parsedDate.getTime())) {
     return 'Not specified';
   }
+  
   return parsedDate.toLocaleString('en-GB', {
     year: 'numeric',
     month: '2-digit',
@@ -37,23 +44,37 @@ const formatDateTime = (dateValue) => {
 };
 
 export default function BookingSummary({
-  item = {},
+  item,
   type,
   color = 'blue',
   showClass = false,
   selectedClass = null,
-  passengerCount = 1,
-  companyField = 'company',
-  totalPrice = 0
+  companyField = 'company'
 }) {
+  // 1. Get context based on type
+  const busContext = useBus();
+  const flightContext = useFlight();
+  const tripContext = useTrip();
+  const context = { bus: busContext, flight: flightContext, trip: tripContext }[type] || {};
+
+  // 2. Destructure context values with fallback
+  const {
+    passengerCount = 1,
+    selectedClass: contextSelectedClass = null,
+    basePrice,
+    totalPrice
+  } = context;
+
   const colors = colorClasses[color] || colorClasses.blue;
   const from = item.from || item.origin;
   const to = item.to || item.destination;
   const companyName = item[companyField]?.name || item[companyField];
   const departureDate = item.departureDate || item.date;
   const arrivalDate = item.arrivalDate;
-  const basePrice = item.price || 0;
-
+  //const price = item.price || 0;
+  
+  
+  
   return (
     <div className={`bg-white rounded-lg shadow-sm border ${colors.border} p-6 mb-8`}>
       <div className="flex flex-col md:flex-row gap-6">
@@ -69,7 +90,7 @@ export default function BookingSummary({
               />
             ) : (
               <div className={`w-full h-full ${colors.badge} flex items-center justify-center`}>
-                <span className="text-2xl font-bold">{type?.charAt(0)?.toUpperCase()}</span>
+                <span className="text-2xl font-bold">{type.charAt(0).toUpperCase()}</span>
               </div>
             )}
           </div>
@@ -117,10 +138,10 @@ export default function BookingSummary({
                 <p className="font-medium text-gray-800">{item.duration}</p>
               </div>
             )}
-            {showClass && selectedClass && (
+            {showClass && contextSelectedClass && (
               <div>
                 <p className="text-sm text-gray-500">Class</p>
-                <p className="font-medium text-gray-800">{selectedClass.name || selectedClass}</p>
+                <p className="font-medium text-gray-800">{contextSelectedClass.name}</p>
               </div>
             )}
           </div>
@@ -129,7 +150,7 @@ export default function BookingSummary({
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">Base Price</span>
-              <span className="font-medium text-black">${Number(basePrice).toFixed(2)}</span>
+              <span className="font-medium text-black">${Number(basePrice || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">Passengers</span>
@@ -138,7 +159,7 @@ export default function BookingSummary({
             <div className="flex justify-between items-center pt-2 border-t border-gray-200">
               <span className="font-semibold text-gray-800">Total</span>
               <span className={`text-xl font-bold ${colorClasses[color]?.text || colorClasses.blue.text}`}>
-                ${Number(totalPrice).toFixed(2)}
+                ${Number(totalPrice || 0).toFixed(2)}
               </span>
             </div>
           </div>

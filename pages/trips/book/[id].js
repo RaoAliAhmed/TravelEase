@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import BookingLayout from '@/components/travel/BookingLayout';
-import BookingSummary from '@/components/travel/BookingSummary';
+import BookingDetailsContext from '@/components/travel/BookingDetailsContext';
 import BookingForm from '@/components/travel/BookingForm';
 import BookingSuccess from '@/components/travel/BookingSuccess';
 import { useTrip } from '@/context/TripContext';
@@ -144,7 +144,7 @@ export default function TripBooking() {
     >
       {trip && (
         <>
-          <BookingSummary
+          <BookingDetailsContext
             item={trip}
             type="trip"
             color="green"
