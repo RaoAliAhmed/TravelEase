@@ -22,7 +22,7 @@ export default function Bookings({ initialBookings }) {
     setSuccessMessage('');
 
     try {
-      // First update the booking status
+
       const response = await fetch('/api/user/bookings', {
         method: 'PUT',
         headers: {
@@ -39,7 +39,7 @@ export default function Bookings({ initialBookings }) {
         throw new Error(data.message || 'Failed to cancel booking');
       }
 
-      // Then increment the seats/spots based on the booking type
+    
       const itemDetails = booking.itemDetails;
       const passengers = booking.passengers;
       
@@ -80,7 +80,7 @@ export default function Bookings({ initialBookings }) {
         throw new Error('Failed to update available seats/spots');
       }
 
-      // Update local state
+
       setBookings(bookings.map(b => 
         b.bookingId === bookingId 
           ? { ...b, status: 'cancelled' } 
@@ -249,9 +249,9 @@ export async function getServerSideProps(context) {
       { projection: { bookings: 1 } }
     );
 
-    // If user has no bookings or bookings field doesn't exist, initialize with empty array
+
     if (!user || !user.bookings) {
-      // If this is the first time viewing bookings, ensure the user has a bookings array for future use
+
       if (user && !user.bookings) {
         await usersCollection.updateOne(
           { _id: new ObjectId(session.user.id) },
@@ -269,10 +269,10 @@ export async function getServerSideProps(context) {
 
     const bookings = user?.bookings || [];
     
-    // Get the travel_booking database for detailed booking info
+
     const travelDb = client.db("travel_booking");
     
-    // Enhance bookings with item details
+
     const enhancedBookings = await Promise.all(
       bookings.map(async (booking) => {
         try {

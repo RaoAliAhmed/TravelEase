@@ -154,7 +154,7 @@ export async function getServerSideProps({ params }) {
       };
     }
     
-    // Convert MongoDB ObjectId to string and format dates
+
     return {
       props: {
         initialFlight: JSON.parse(JSON.stringify({

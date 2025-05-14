@@ -76,10 +76,10 @@ export default function NewFlight() {
 }
 
 export async function getServerSideProps(context) {
-  // Get the user's session
+
   const session = await getSession(context);
   
-  // If the user is not logged in or not an admin, redirect to the login page
+
   if (!session || !session.user?.isAdmin) {
     return {
       redirect: {
@@ -89,7 +89,7 @@ export async function getServerSideProps(context) {
     };
   }
   
-  // If the user is an admin, return empty props (the page will render normally)
+
   return {
     props: {},
   };

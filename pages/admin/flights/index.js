@@ -64,7 +64,7 @@ export async function getServerSideProps() {
     
     const flights = await db.collection('flights').find({}).toArray();
     
-    // Format data for display
+
     const formattedFlights = flights.map(flight => ({
       ...flight,
       _id: flight._id.toString(),

@@ -1,4 +1,4 @@
-// pages/buses/[id].js
+
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import TravelDetailHeader from '@/components/travel/TravelDetailHeader';
@@ -97,7 +97,7 @@ export async function getStaticPaths() {
     
     return {
       paths,
-      fallback: true // Set to true to allow generation of new pages on-demand
+      fallback: true 
     };
   } catch (error) {
     console.error('Error fetching bus paths:', error);
@@ -120,7 +120,7 @@ export async function getStaticProps({ params }) {
       return { props: { bus: null }, revalidate: 60 };
     }
     
-    // Convert ObjectId to string for serialization
+
     const serializedBus = JSON.parse(JSON.stringify(bus, (key, value) => {
       if (key === '_id') return value.toString();
       return value;
@@ -128,7 +128,7 @@ export async function getStaticProps({ params }) {
     
     return { 
       props: { bus: serializedBus },
-      revalidate: 60 // Revalidate every 60 seconds (ISR)
+      revalidate: 60 
     };
   } catch (error) {
     console.error('Error fetching bus details:', error);

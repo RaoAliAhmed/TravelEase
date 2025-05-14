@@ -8,12 +8,12 @@ export default async function handler(req, res) {
     query: { id },
     method,
   } = req;
-  console.log("id",id)
+
   try {
     const { db } = await connectToDatabase();
     const flightsCollection = db.collection('flights');
 
-    // Validate MongoDB ObjectId
+
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid flight ID' });
     }
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        // Get a single flight - public access
+
         const flight = await flightsCollection.findOne({ _id: objectId });
         
         if (!flight) {
@@ -33,17 +33,16 @@ export default async function handler(req, res) {
       
       case 'PUT':
       case 'DELETE':
-        // Admin only for PUT and DELETE requests
+
         const session = await getServerSession(req, res, authOptions);
         if (!session || !session.user?.isAdmin) {
           return res.status(401).json({ message: 'Unauthorized - Admin access required' });
         }
 
         if (method === 'PUT') {
-          // Update a flight
           const updateData = { ...req.body };
           
-          
+       
           if (updateData.startDate) {
             updateData.startDate = new Date(updateData.startDate);
           }
@@ -58,14 +57,12 @@ export default async function handler(req, res) {
             { returnDocument: 'after' }
           );
           
-          
-          if (!updatedFlight) {
+          if (!updatedFlight.value) {
             return res.status(404).json({ message: 'Flight not found' });
           }
           
           return res.status(200).json(updatedFlight.value);
         } else {
-          // Delete a flight
           const result = await flightsCollection.deleteOne({ _id: objectId });
           
           if (result.deletedCount === 0) {

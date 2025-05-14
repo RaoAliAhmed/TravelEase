@@ -1,4 +1,4 @@
-// pages/buses/book/[id].js
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ function BusBookingPageInner() {
   const [error, setError] = useState(null);
   const [contactInfo, setContactInfo] = useState(null);
 
-  // Fetch the bus by ID and store in context
+
   useEffect(() => {
     if (!id) return;
 
@@ -157,5 +157,5 @@ function BusBookingPageInner() {
   );
 }
 
-// Export with provider wrapp
+
 export default BusBookingPageInner;

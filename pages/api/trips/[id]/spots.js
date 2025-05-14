@@ -3,12 +3,12 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
 
 export default async function handler(req, res) {
-  // Only allow PUT requests
+  
   if (req.method !== 'PUT') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Check authentication
+
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
     return res.status(401).json({ message: 'Not authenticated' });
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     const db = client.db("travel_booking");
     const tripsCollection = db.collection("trips");
 
-    // Find the trip first to make sure it exists
+
     const trip = await tripsCollection.findOne({ _id: new ObjectId(id) });
     
     if (!trip) {
@@ -35,7 +35,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
-    // Update the available spots
     const result = await tripsCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { availableSpots } }

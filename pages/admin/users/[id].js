@@ -220,7 +220,7 @@ export async function getServerSideProps({ params }) {
       }
     }
     
-    // Sort bookings by date (newest first)
+  
     if (user.bookings) {
       user.bookings.sort((a, b) => {
         const dateA = a.bookedAt ? new Date(a.bookedAt) : new Date(0);
@@ -229,10 +229,10 @@ export async function getServerSideProps({ params }) {
       });
     }
     
-    // Omit password for security
+
     delete user.password;
     
-    // Format for JSON serialization
+
     const formattedUser = {
       ...user,
       _id: user._id.toString(),

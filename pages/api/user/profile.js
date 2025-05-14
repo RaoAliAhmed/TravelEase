@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const db = client.db("travel_booking");
   const usersCollection = db.collection("users");
 
-  // GET request to fetch user profile
+
   if (req.method === "GET") {
     try {
       const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
@@ -26,7 +26,6 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Don't send the password to the client
       const { password, ...userWithoutPassword } = user;
       
       client.close();
@@ -37,7 +36,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // PUT request to update user profile
+
   if (req.method === "PUT") {
     const { name, email, currentPassword, newPassword } = req.body;
     
@@ -49,15 +48,15 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Prepare update object
+
       const updateData = {};
       
       if (name) updateData.name = name;
       if (email) updateData.email = email;
       
-      // If user wants to change password
+
       if (currentPassword && newPassword) {
-        // Verify current password
+
         const isValid = await bcrypt.compare(currentPassword, user.password);
         
         if (!isValid) {
@@ -65,11 +64,11 @@ export default async function handler(req, res) {
           return res.status(403).json({ message: "Current password is incorrect" });
         }
         
-        // Hash new password
+
         updateData.password = await bcrypt.hash(newPassword, 12);
       }
       
-      // Update user
+
       await usersCollection.updateOne(
         { _id: new ObjectId(userId) },
         { $set: updateData }
@@ -83,7 +82,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Method not allowed
+
   client.close();
   return res.status(405).json({ message: "Method not allowed" });
 } 

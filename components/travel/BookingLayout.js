@@ -35,7 +35,6 @@ export default function BookingLayout({
   const colors = colorClasses[color] || colorClasses.blue;
   const typeTitle = type.charAt(0).toUpperCase() + type.slice(1);
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -44,7 +43,7 @@ export default function BookingLayout({
     );
   }
 
-  // Not found or no availability state
+
   if (notFound || noAvailability) {
     return (
       <div className="py-20 flex flex-col items-center justify-center">

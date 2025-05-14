@@ -65,10 +65,10 @@ export async function getServerSideProps() {
   try {
     const { db } = await connectToDatabase();
     
-    // Get all users to extract bookings
+
     const users = await db.collection('users').find({}).toArray();
     
-    // Extract bookings from all users and format them
+
     const allBookings = [];
     
     for (const user of users) {
@@ -76,7 +76,7 @@ export async function getServerSideProps() {
         for (const booking of user.bookings) {
           let itemDetails = {};
           
-          // Try to fetch details about the booked item
+
           if (booking.type && booking.itemId) {
             try {
               const collectionName = booking.type === 'bus' ? 'buses' : `${booking.type}s`;
@@ -89,7 +89,7 @@ export async function getServerSideProps() {
             }
           }
           
-          // Format contactInfo for display
+   
           const contactInfoDisplay = booking.contactInfo
             ? `${booking.contactInfo.firstName || ''} ${booking.contactInfo.lastName || ''} (${booking.contactInfo.email || ''})`
             : '-';
@@ -105,7 +105,7 @@ export async function getServerSideProps() {
       }
     }
     
-    // Sort bookings by date (most recent first)
+   
     allBookings.sort((a, b) => {
       const dateA = a.bookedAt ? new Date(a.bookedAt) : new Date(0);
       const dateB = b.bookedAt ? new Date(b.bookedAt) : new Date(0);

@@ -29,7 +29,7 @@ export default function AdminFlightView({ flight }) {
     );
   }
 
-  // Format dates
+
   const startDate = flight.startDate ? new Date(flight.startDate) : null;
   const endDate = flight.endDate ? new Date(flight.endDate) : null;
 
@@ -131,7 +131,7 @@ export async function getServerSideProps({ params }) {
   try {
     const { db } = await connectToDatabase();
     
-    // Validate MongoDB ObjectId
+
     if (!ObjectId.isValid(params.id)) {
       return {
         props: { flight: null }
@@ -146,7 +146,7 @@ export async function getServerSideProps({ params }) {
       };
     }
     
-    // Format for JSON serialization
+
     const formattedFlight = {
       ...flight,
       _id: flight._id.toString(),

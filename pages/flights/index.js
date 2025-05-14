@@ -10,14 +10,14 @@ export default function Flights({ flights }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('price');
   
-  // Filter flights based on search term
+
   const filteredFlights = flights.filter(flight => 
     (flight.from || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (flight.to || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (flight.airline || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  // Sort flights based on selected criteria
+
   const sortedFlights = [...filteredFlights].sort((a, b) => {
     if (sortBy === 'price') return a.price - b.price;
     if (sortBy === 'duration') return a.duration.localeCompare(b.duration);
@@ -64,13 +64,13 @@ export default function Flights({ flights }) {
   );
 }
 
-// Use ISR for flights listing page
+
 export async function getStaticProps() {
   try {
     const { db } = await connectToDatabase();
     const flights = await db.collection('flights').find({}).toArray();
     
-    // Serialize for JSON
+
     const serializedFlights = JSON.parse(JSON.stringify(flights, (key, value) => {
       if (key === '_id') return value.toString();
       return value;
@@ -78,7 +78,7 @@ export async function getStaticProps() {
     
     return {
       props: { flights: serializedFlights },
-      revalidate: 300 // Revalidate every 5 minutes
+      revalidate: 300 
     };
   } catch (error) {
     console.error('Error fetching flights:', error);

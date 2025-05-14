@@ -11,21 +11,21 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        // Get all trips - public access
+       
         const trips = await tripsCollection.find({}).toArray();
         return res.status(200).json(trips);
       
       case 'POST':
-        // Admin only for POST requests
+   
         const session = await getServerSession(req, res, authOptions);
         if (!session || !session.user?.isAdmin) {
           return res.status(401).json({ message: 'Unauthorized - Admin access required' });
         }
         
-        // Add a new trip
+ 
         const tripData = { ...req.body };
         
-        // Validate required fields
+       
         const requiredFields = ['name', 'origin', 'destination', 'price'];
         for (const field of requiredFields) {
           if (!tripData[field]) {
@@ -33,12 +33,12 @@ export default async function handler(req, res) {
           }
         }
         
-        // Convert prices to numbers
+
         if (typeof tripData.price === 'string') {
           tripData.price = parseFloat(tripData.price);
         }
         
-        // Convert string dates to Date objects
+ 
         if (tripData.startDate && typeof tripData.startDate === 'string') {
           tripData.startDate = new Date(tripData.startDate);
         }
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
           tripData.endDate = new Date(tripData.endDate);
         }
         
-        // Add creation timestamp
+      
         tripData.createdAt = new Date();
         
         const result = await tripsCollection.insertOne(tripData);

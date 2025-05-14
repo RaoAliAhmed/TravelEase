@@ -8,12 +8,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Search query, date, or city is required' });
     }
 
-    // Convert query to lowercase for case-insensitive search
     const searchQuery = query ? query.toLowerCase() : '';
     const departure = departureCity ? departureCity.toLowerCase() : '';
     const destination = destinationCity ? destinationCity.toLowerCase() : '';
 
-    // Get collections
+
     const flightsCollection = await getCollection('flights');
     const busesCollection = await getCollection('buses');
     const tripsCollection = await getCollection('trips');
@@ -24,21 +23,19 @@ export default async function handler(req, res) {
       trips: []
     };
 
-    // Parse date properly - handles YYYY-MM-DD format from HTML date input
+
     const parseDate = (dateString) => {
       if (!dateString) return null;
       
       try {
-        // Create a date object - the date input sends YYYY-MM-DD format
+
         const parsedDate = new Date(dateString);
         
-        // Check if date is valid
         if (isNaN(parsedDate.getTime())) {
           console.error('Invalid date format:', dateString);
           return null;
         }
         
-        // Set to start of day in UTC to avoid timezone issues
         parsedDate.setUTCHours(0, 0, 0, 0);
         
         return parsedDate;
@@ -48,34 +45,33 @@ export default async function handler(req, res) {
       }
     };
 
-    // Build search conditions
+  
     const buildSearchConditions = (dateField, fromField = 'from', toField = 'to') => {
       const conditions = [];
       
-      // Text search conditions for general query
+
       if (searchQuery) {
         conditions.push({ [fromField]: { $regex: searchQuery, $options: 'i' } });
         conditions.push({ [toField]: { $regex: searchQuery, $options: 'i' } });
       }
       
-      // Specific departure city search
+
       if (departure) {
         conditions.push({ [fromField]: { $regex: departure, $options: 'i' } });
       }
-      
-      // Specific destination city search
+
       if (destination) {
         conditions.push({ [toField]: { $regex: destination, $options: 'i' } });
       }
       
-      // Date condition - if date is provided
+  
       if (date) {
-        // Parse the date string to a Date object
+  t
         const selectedDate = parseDate(date);
         
-        // Only add date condition if the date is valid
+
         if (selectedDate) {
-          // Create next day for range query
+
           const nextDay = new Date(selectedDate);
           nextDay.setDate(nextDay.getDate() + 1);
           
@@ -88,7 +84,7 @@ export default async function handler(req, res) {
         }
       }
       
-      // If we have both departure and destination, use $and to make sure both match
+
       if (departure && destination) {
         return { 
           $and: [
@@ -101,7 +97,7 @@ export default async function handler(req, res) {
       return conditions.length > 0 ? { $or: conditions } : {};
     };
 
-    // If type is specified, only search that type
+
     if (type) {
       switch (type) {
         case 'flights':
@@ -123,10 +119,10 @@ export default async function handler(req, res) {
           results.buses = await busesCollection.find(busConditions).toArray();
           break;
         case 'trips':
-          // For trips, we need special handling for date ranges
+
           let tripConditions = {};
           
-          // Add text search conditions
+
           const textConditions = [];
           if (searchQuery) {
             textConditions.push({ name: { $regex: searchQuery, $options: 'i' } });
@@ -143,7 +139,7 @@ export default async function handler(req, res) {
             textConditions.push({ destination: { $regex: destination, $options: 'i' } });
           }
           
-          // Add text conditions to the query
+
           if (textConditions.length > 0) {
             if (departure && destination) {
               tripConditions = {
@@ -157,12 +153,12 @@ export default async function handler(req, res) {
             }
           }
           
-          // Add date condition if provided
+
           if (date) {
-            // Parse the date string to a Date object
+
             const selectedDate = parseDate(date);
             
-            // Only proceed if the date is valid
+
             if (selectedDate) {
               console.log('Searching for trips with date:', selectedDate);
               
@@ -173,7 +169,7 @@ export default async function handler(req, res) {
                 ]
               };
               
-              // Combine with existing conditions
+
               if (Object.keys(tripConditions).length > 0) {
                 tripConditions = {
                   $and: [
@@ -192,7 +188,7 @@ export default async function handler(req, res) {
           break;
       }
     } else {
-      // Search all types
+      
       const [flights, buses, trips] = await Promise.all([
         flightsCollection.find((() => {
           const conditions = buildSearchConditions('departureDate', 'from', 'to');
@@ -215,10 +211,10 @@ export default async function handler(req, res) {
         })()).toArray(),
         
         tripsCollection.find((() => {
-          // For trips, we need special handling for date ranges
+          
           let conditions = {};
           
-          // Add text search conditions
+          
           const textConditions = [];
           if (searchQuery) {
             textConditions.push({ name: { $regex: searchQuery, $options: 'i' } });
@@ -235,7 +231,7 @@ export default async function handler(req, res) {
             textConditions.push({ destination: { $regex: destination, $options: 'i' } });
           }
           
-          // Add text conditions to the query
+          
           if (textConditions.length > 0) {
             if (departure && destination) {
               conditions = {
@@ -249,12 +245,12 @@ export default async function handler(req, res) {
             }
           }
           
-          // Add date condition if provided
+          
           if (date) {
-            // Parse the date string to a Date object
+
             const selectedDate = parseDate(date);
             
-            // Only proceed if the date is valid
+
             if (selectedDate) {
               const dateCondition = { 
                 $and: [
@@ -263,7 +259,7 @@ export default async function handler(req, res) {
                 ]
               };
               
-              // Combine with existing conditions
+              
               if (Object.keys(conditions).length > 0) {
                 conditions = {
                   $and: [

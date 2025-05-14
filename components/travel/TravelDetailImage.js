@@ -6,7 +6,7 @@ export default function TravelDetailImage({
   alt,
   type
 }) {
-  // Use imageUrl if provided, otherwise check if there's an 'image' property in the parent component
+ 
   const imageSrc = imageUrl || `/images/${type}-placeholder.jpg`;
   
   return (

@@ -180,7 +180,7 @@ export default function AdminUserEdit({ user }) {
   );
 }
 
-// ✅ Server-side fetching with bulletproof sanitization
+
 export async function getServerSideProps({ params }) {
   try {
     const { db } = await connectToDatabase();
@@ -218,7 +218,7 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-// ✅ Safe deep sanitizer for Next.js
+
 function deepSanitize(value) {
   if (value === undefined) return null;
   if (value instanceof Date) return value.toISOString();

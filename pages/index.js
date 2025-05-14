@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { connectToDatabase } from "../lib/mongodb";
 
-// Tabs data
 const TABS = [
   { id: 'flights', label: 'Flights', color: 'pink' },
   { id: 'buses', label: 'Buses', color: 'blue' },
@@ -17,7 +16,6 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
   const router = useRouter();
   const loading = status === "loading";
   
-  // Search states
   const [searchQuery, setSearchQuery] = useState('');
   const [departureCity, setDepartureCity] = useState('');
   const [destinationCity, setDestinationCity] = useState('');
@@ -38,7 +36,7 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
 
     setIsSearching(true);
     try {
-      // Build the URL with query parameters
+
       let searchUrl = `/api/search?`;
       const params = new URLSearchParams();
       
@@ -55,8 +53,6 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
       }
       
       if (date) {
-        // Date is already in YYYY-MM-DD format from the date input
-        // No need to reformat, just pass it as is
         params.append('date', date);
       }
       
@@ -72,7 +68,6 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
       setSearchResults(results);
     } catch (error) {
       console.error('Search error:', error);
-      // You might want to show an error message to the user here
     } finally {
       setIsSearching(false);
     }
@@ -94,12 +89,10 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
     );
   }
 
-  // Get the content for the active tab
   const activeContent = searchResults ? searchResults[activeTab] : featuredContent[activeTab] || [];
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Hero Section with Search */}
       <section className="relative bg-gradient-to-r from-indigo-600 to-indigo-800 text-white py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -152,7 +145,7 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
                 className="w-full text-black py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]} // Prevent selecting past dates
+                min={new Date().toISOString().split('T')[0]} 
               />
               <button 
                 className={`w-full ${isSearching ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'} text-white py-3 rounded-lg font-medium transition flex items-center justify-center`}
@@ -424,18 +417,16 @@ export default function Home({ featuredContent = { flights: [], buses: [], trips
   );
 }
 
-// Implement SSR
+
 export async function getStaticProps() {
   try {
-    // Connect directly to the database instead of using API
     const { db } = await connectToDatabase();
     
-    // Get featured content directly from the database
+
     const featuredFlights = await db.collection('flights').find({ featured: true }).limit(6).toArray();
     const featuredBuses = await db.collection('buses').find({ featured: true }).limit(6).toArray();
     const featuredTrips = await db.collection('trips').find({ featured: true }).limit(6).toArray();
     
-    // Serialize for JSON
     const serializedContent = {
       flights: JSON.parse(JSON.stringify(featuredFlights, (key, value) => {
         if (key === '_id') return value.toString();
@@ -453,11 +444,11 @@ export async function getStaticProps() {
     
     return {
       props: { featuredContent: serializedContent },
-      revalidate: 3600 // Revalidate every hour
+      revalidate: 3600 
     };
   } catch (error) {
     console.error('Error fetching featured content:', error);
-    // Return empty arrays for each category to avoid undefined errors
+
     return {
       props: {
         featuredContent: {
@@ -466,7 +457,7 @@ export async function getStaticProps() {
           trips: []
         }
       },
-      revalidate: 300 // Try again in 5 minutes if there was an error
+      revalidate: 300 
     };
   }
 }

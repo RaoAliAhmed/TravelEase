@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
   const { db } = await connectToDatabase();
 
-  // 1. Increment seats for flight or bus
+
   if (type === 'flight') {
     await db.collection('flights').updateOne(
       { _id: new ObjectId(itemId) },
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     );
   }
 
-  // 2. Remove booking from user's bookings array
+  
   await db.collection('users').updateOne(
     { email: userEmail },
     { $pull: { bookings: { bookingId } } }

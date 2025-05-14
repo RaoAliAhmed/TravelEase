@@ -64,7 +64,7 @@ export async function getServerSideProps() {
     
     const buses = await db.collection('buses').find({}).toArray();
     
-    // Format data for display
+
     const formattedBuses = buses.map(bus => ({
       ...bus,
       _id: bus._id.toString(),

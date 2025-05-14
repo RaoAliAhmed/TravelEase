@@ -27,7 +27,6 @@ const formatDateTime = (dateValue) => {
   
   const parsedDate = new Date(dateValue);
   
-  // Check if date is valid
   if (isNaN(parsedDate.getTime())) {
     return 'Not specified';
   }
@@ -51,13 +50,12 @@ export default function BookingSummary({
   selectedClass = null,
   companyField = 'company'
 }) {
-  // 1. Get context based on type
   const busContext = useBus();
   const flightContext = useFlight();
   const tripContext = useTrip();
   const context = { bus: busContext, flight: flightContext, trip: tripContext }[type] || {};
 
-  // 2. Destructure context values with fallback
+
   const {
     passengerCount = 1,
     selectedClass: contextSelectedClass = null,
@@ -71,14 +69,13 @@ export default function BookingSummary({
   const companyName = item[companyField]?.name || item[companyField];
   const departureDate = item.departureDate || item.date;
   const arrivalDate = item.arrivalDate;
-  //const price = item.price || 0;
   
   
   
   return (
     <div className={`bg-white rounded-lg shadow-sm border ${colors.border} p-6 mb-8`}>
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Image Section */}
+
         <div className="w-full md:w-1/3">
           <div className="relative h-48 rounded-lg overflow-hidden">
             {item.image ? (
@@ -96,7 +93,6 @@ export default function BookingSummary({
           </div>
         </div>
 
-        {/* Details Section */}
         <div className="flex-1">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -146,7 +142,6 @@ export default function BookingSummary({
             )}
           </div>
 
-          {/* Price Summary */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">Base Price</span>

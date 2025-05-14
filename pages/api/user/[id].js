@@ -9,10 +9,10 @@ export default async function handler(req, res) {
     method,
   } = req;
 
-  // Get session using getServerSession for server-side
+ 
   const session = await getServerSession(req, res, authOptions);
 
-  // Check if user is authenticated and is an admin
+
   if (!session || !session.user?.isAdmin) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     const { db } = await connectToDatabase();
     const usersCollection = db.collection('users');
 
-    // Validate MongoDB ObjectId
+   
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid user ID' });
     }
@@ -30,20 +30,20 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        // Get a single user
+
         const user = await usersCollection.findOne({ _id: objectId });
         
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
         }
         
-        // Remove sensitive information
+
         delete user.password;
         
         return res.status(200).json(user);
       
       case 'PUT':
-        // Update a user
+    
         const { name, email, isAdmin } = req.body;
         
         const updatedUser = await usersCollection.findOneAndUpdate(
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
         return res.status(200).json("User Successfully Updated");
       
       case 'DELETE':
-        // Delete a user
+    
         const result = await usersCollection.deleteOne({ _id: objectId });
         
         if (result.deletedCount === 0) {

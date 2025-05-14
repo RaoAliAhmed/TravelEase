@@ -10,14 +10,13 @@ export default function Buses({ buses }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('price');
   
-  // Filter buses based on search term
+
   const filteredBuses = buses.filter(bus => 
     (bus.from || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (bus.to || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (bus.busCompany || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  // Sort buses based on selected criteria
+
   const sortedBuses = [...filteredBuses].sort((a, b) => {
     if (sortBy === 'price') return a.price - b.price;
     if (sortBy === 'duration') return a.duration.localeCompare(b.duration);
@@ -51,7 +50,7 @@ export default function Buses({ buses }) {
         />
       </div>
       
-      {/* Back to home button */}
+ 
       <div className="max-w-7xl mx-auto px-4 pb-8">
         <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800">
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -64,13 +63,13 @@ export default function Buses({ buses }) {
   );
 }
 
-// Use ISR for buses listing page
+
 export async function getStaticProps() {
   try {
     const { db } = await connectToDatabase();
     const buses = await db.collection('buses').find({}).toArray();
     
-    // Serialize for JSON
+   
     const serializedBuses = JSON.parse(JSON.stringify(buses, (key, value) => {
       if (key === '_id') return value.toString();
       return value;
@@ -78,7 +77,7 @@ export async function getStaticProps() {
     
     return {
       props: { buses: serializedBuses },
-      revalidate: 300 // Revalidate every 5 minutes
+      revalidate: 300 
     };
   } catch (error) {
     console.error('Error fetching buses:', error);

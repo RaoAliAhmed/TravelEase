@@ -29,7 +29,7 @@ export default function AdminSignup() {
     setError('');
     setLoading(true);
 
-    // Validate form
+
     if (!formData.name || !formData.email || !formData.password || !formData.adminSecretKey) {
       setError('All fields are required');
       setLoading(false);

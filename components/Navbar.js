@@ -15,7 +15,7 @@ export default function Navbar() {
     router.replace("/auth/login");
   };
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileRef.current && !profileRef.current.contains(event.target)) {

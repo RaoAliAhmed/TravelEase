@@ -5,7 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import useSWR from 'swr';
 
-// Fetcher function for SWR
+
 const fetcher = async (url) => {
   const res = await fetch(url);
   if (!res.ok) {
@@ -31,25 +31,25 @@ export default function Profile() {
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
 
-  // Use SWR for data fetching
+
   const { data: userData, error: swrError, isLoading, mutate } = useSWR(
     status === 'authenticated' ? '/api/user/profile' : null,
     fetcher,
     {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
-      refreshInterval: 0 // Don't auto-refresh
+      refreshInterval: 0
     }
   );
 
-  // Redirect if not authenticated
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/auth/login');
     }
   }, [status, router]);
 
-  // Update form data when user data is loaded
+
   useEffect(() => {
     if (userData) {
       setFormData({
@@ -73,7 +73,7 @@ export default function Profile() {
     setFormError('');
     setFormSuccess('');
 
-    // Validate passwords if changing
+   
     if (formData.newPassword) {
       if (formData.newPassword.length < 7) {
         setFormError('New password must be at least 7 characters long');
@@ -110,7 +110,7 @@ export default function Profile() {
         throw new Error(data.message || 'Failed to update profile');
       }
 
-      // Reset password fields
+ 
       setFormData({
         ...formData,
         currentPassword: '',
@@ -120,7 +120,7 @@ export default function Profile() {
       
       setFormSuccess('Profile updated successfully');
       setIsEditing(false);
-      mutate(); // Revalidate the data using SWR
+      mutate();
     } catch (err) {
       setFormError(err.message);
     }

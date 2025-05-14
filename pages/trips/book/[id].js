@@ -1,4 +1,4 @@
-// pages/trips/book/[id].js
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
@@ -43,7 +43,7 @@ export default function TripBooking() {
     fetchTrip();
   }, [id]);
 
-  // Validate that we have enough spots available
+
   useEffect(() => {
     if (trip && passengerCount > trip.availableSpots) {
       setError(`Only ${trip.availableSpots} spots available. Please select fewer passengers.`);
@@ -58,7 +58,7 @@ export default function TripBooking() {
       return;
     }
 
-    // Validate spot availability again
+
     if (trip && passengerCount > trip.availableSpots) {
       setError(`Only ${trip.availableSpots} spots available. Please select fewer passengers.`);
       return;
@@ -90,7 +90,7 @@ export default function TripBooking() {
       setBookingId(data.booking.bookingId);
       setBookingSuccess(true);
 
-      // Update available spots - deduct the correct number of spots based on passenger count
+   
       const newSpots = trip.availableSpots - passengerCount;
       await fetch(`/api/trips/${id}/spots`, {
         method: 'PUT',

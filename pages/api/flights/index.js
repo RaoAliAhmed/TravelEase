@@ -11,21 +11,20 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        // Get all flights - public access
         const flights = await flightsCollection.find({}).toArray();
         return res.status(200).json(flights);
       
       case 'POST':
-        // Admin only for POST requests
+       
         const session = await getServerSession(req, res, authOptions);
         if (!session || !session.user?.isAdmin) {
           return res.status(401).json({ message: 'Unauthorized - Admin access required' });
         }
         
-        // Add a new flight
+       
         const flightData = { ...req.body };
         
-        // Validate required fields
+
         const requiredFields = ['name', 'origin', 'destination', 'price'];
         for (const field of requiredFields) {
           if (!flightData[field]) {
@@ -33,12 +32,10 @@ export default async function handler(req, res) {
           }
         }
         
-        // Convert prices to numbers
         if (typeof flightData.price === 'string') {
           flightData.price = parseFloat(flightData.price);
         }
         
-        // Convert string dates to Date objects
         if (flightData.startDate && typeof flightData.startDate === 'string') {
           flightData.startDate = new Date(flightData.startDate);
         }
@@ -47,7 +44,6 @@ export default async function handler(req, res) {
           flightData.endDate = new Date(flightData.endDate);
         }
         
-        // Add creation timestamp
         flightData.createdAt = new Date();
         
         const result = await flightsCollection.insertOne(flightData);

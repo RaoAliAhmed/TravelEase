@@ -66,7 +66,7 @@ export async function getServerSideProps() {
     
     const users = await db.collection('users').find({}).toArray();
     
-    // Add bookings count and format dates
+
     const formattedUsers = users.map(user => ({
       ...user,
       _id: user._id.toString(),

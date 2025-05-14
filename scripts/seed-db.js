@@ -16,14 +16,14 @@ async function seedDatabase() {
     });
     const db = client.db(MONGODB_DB);
 
-    // Clear existing collections
+   
     await db.collection('flights').deleteMany({});
     await db.collection('buses').deleteMany({});
     await db.collection('trips').deleteMany({});
 
     console.log('Collections cleared');
 
-    // Seed flights
+
     const flights = [
       {
         from: 'Karachi',

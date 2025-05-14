@@ -11,21 +11,20 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        // Get all buses - public access
         const buses = await busesCollection.find({}).toArray();
         return res.status(200).json(buses);
       
       case 'POST':
-        // Admin only for POST requests
+      
         const session = await getServerSession(req, res, authOptions);
         if (!session || !session.user?.isAdmin) {
           return res.status(401).json({ message: 'Unauthorized - Admin access required' });
         }
         
-        // Add a new bus
+      
         const busData = { ...req.body };
         
-        // Validate required fields
+
         const requiredFields = ['name', 'origin', 'destination', 'price'];
         for (const field of requiredFields) {
           if (!busData[field]) {
@@ -33,12 +32,11 @@ export default async function handler(req, res) {
           }
         }
         
-        // Convert prices to numbers
         if (typeof busData.price === 'string') {
           busData.price = parseFloat(busData.price);
         }
         
-        // Convert string dates to Date objects
+
         if (busData.startDate && typeof busData.startDate === 'string') {
           busData.startDate = new Date(busData.startDate);
         }
@@ -47,7 +45,6 @@ export default async function handler(req, res) {
           busData.endDate = new Date(busData.endDate);
         }
         
-        // Add creation timestamp
         busData.createdAt = new Date();
         
         const result = await busesCollection.insertOne(busData);

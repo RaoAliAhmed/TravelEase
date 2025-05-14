@@ -2,10 +2,10 @@ import { connectToDatabase } from '../../lib/mongodb';
 
 export default async function handler(req, res) {
   try {
-    // Test the database connection
+
     const { client, db } = await connectToDatabase();
     
-    // Check if we can list collections
+   
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(c => c.name);
     

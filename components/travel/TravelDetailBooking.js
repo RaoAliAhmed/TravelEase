@@ -30,19 +30,19 @@ export default function TravelDetailBooking({
   const router = useRouter();
   const { data: session } = useSession();
   
-  // Get the appropriate context based on type
+
   const busContext = useBus();
   const flightContext = useFlight();
   const tripContext = useTrip();
   
-  // Select the context based on type
+
   const context = {
     bus: busContext,
     flight: flightContext,
     trip: tripContext
   }[type];
 
-  // Add a fallback in case context is undefined
+
    const { passengerCount = 1, setPassengerCount = () => {}, selectedClass = 'Economy', setSelectedClass = () => {}, totalPrice , setTotalPrice = () => {}, basePrice, setBasePrice = () => {} } = context || {};
 
   
@@ -65,7 +65,6 @@ export default function TravelDetailBooking({
   }, [item.price, passengerCount, selectedClass]);
 
   const handleBookClick = () => {
-    // Ensure we always use 'buses' for bus type
     const urlType = type === 'bus' ? 'buses' : `${type}s`;
     if (session) {
       router.push(`/${urlType}/book/${item._id}`);

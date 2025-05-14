@@ -29,7 +29,7 @@ export default function TravelDetailInfo({
   const colors = colorClasses[color] || colorClasses.blue;
   const companyName = item[companyField] || item.busCompany || item.name;
   
-  // Handle different field naming conventions
+
   const from = item.from || item.origin;
   const to = item.to || item.destination;
   const departureDate = new Date(item.departureDate || item.startDate);

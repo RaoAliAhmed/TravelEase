@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const db = client.db("travel_booking");
   const usersCollection = db.collection("users");
 
-  // GET request to fetch user bookings
+
   if (req.method === "GET") {
     try {
       const user = await usersCollection.findOne(
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
       const bookings = user.bookings || [];
       
-      // Enhance bookings with item details
+
       const enhancedBookings = await Promise.all(
         bookings.map(async (booking) => {
           try {
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // POST request to add a new booking
+
   if (req.method === "POST") {
     const { 
       type, 
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       return res.status(422).json({ message: "Missing required booking information" });
     }
 
-    // Validate contactInfo fields if provided
+
     if (contactInfo) {
       const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'country', 'zipCode'];
       const missingFields = requiredFields.filter(field => !contactInfo[field]);
@@ -103,21 +103,21 @@ export default async function handler(req, res) {
         selectedClass
       };
       
-      // Check if the user has a bookings array, create it if it doesn't exist
+
       const user = await usersCollection.findOne(
         { _id: new ObjectId(userId) },
         { projection: { bookings: 1 } }
       );
       
       if (!user || !user.bookings) {
-        // Initialize bookings array if it doesn't exist
+
         await usersCollection.updateOne(
           { _id: new ObjectId(userId) },
           { $set: { bookings: [] } }
         );
       }
       
-      // Now push the new booking
+
       await usersCollection.updateOne(
         { _id: new ObjectId(userId) },
         { $push: { bookings: newBooking } }
@@ -131,7 +131,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // PUT request to update booking status (e.g., cancel)
+
   if (req.method === "PUT") {
     const { bookingId, status } = req.body;
     
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Method not allowed
+
   client.close();
   return res.status(405).json({ message: "Method not allowed" });
 } 

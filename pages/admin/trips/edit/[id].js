@@ -153,7 +153,7 @@ export async function getServerSideProps({ params }) {
       };
     }
     
-    // Convert MongoDB ObjectId to string and format dates
+  
     return {
       props: {
         initialTrip: JSON.parse(JSON.stringify({

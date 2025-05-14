@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const { db } = await connectToDatabase();
     const tripsCollection = db.collection('trips');
 
-    // Validate MongoDB ObjectId
+   
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid trip ID' });
     }
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        // Get a single trip - public access
+ 
         const trip = await tripsCollection.findOne({ _id: objectId });
         
         if (!trip) {
@@ -33,17 +33,17 @@ export default async function handler(req, res) {
       
       case 'PUT':
       case 'DELETE':
-        // Admin only for PUT and DELETE requests
+      
         const session = await getServerSession(req, res, authOptions);
         if (!session || !session.user?.isAdmin) {
           return res.status(401).json({ message: 'Unauthorized - Admin access required' });
         }
 
         if (method === 'PUT') {
-          // Update a trip
+
           const updateData = { ...req.body };
           
-          // Convert string dates to Date objects
+    
           if (updateData.startDate) {
             updateData.startDate = new Date(updateData.startDate);
           }
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
           
           return res.status(200).json(updatedTrip.value);
         } else {
-          // Delete a trip
+
           const result = await tripsCollection.deleteOne({ _id: objectId });
           
           if (result.deletedCount === 0) {

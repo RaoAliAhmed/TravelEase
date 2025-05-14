@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 
 export default async function handler(req, res) {
   try {
-    // Use the connection string directly with proper escaping
+    
     const mongodbUri = "mongodb+srv://zeeshanhamid17:%24zee03052002@cluster0.aqabk0o.mongodb.net/";
     console.log("Connecting to MongoDB with URI:", mongodbUri.replace(/\/\/([^:]+):[^@]+@/, '//***:***@')); // Log URI with hidden credentials
     

@@ -1,4 +1,4 @@
-// pages/trips/[id].js
+
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import TravelDetailHeader from '@/components/travel/TravelDetailHeader';
@@ -100,7 +100,7 @@ export async function getStaticProps({ params }) {
       return { props: { trip: null }, revalidate: 60 };
     }
     
-    // Convert ObjectId to string for serialization
+ 
     const serializedTrip = JSON.parse(JSON.stringify(trip, (key, value) => {
       if (key === '_id') return value.toString();
       return value;
@@ -108,7 +108,7 @@ export async function getStaticProps({ params }) {
     
     return { 
       props: { trip: serializedTrip },
-      revalidate: 60 // Revalidate every 60 seconds
+      revalidate: 60 
     };
   } catch (error) {
     console.error('Error fetching trip details:', error);
@@ -127,7 +127,7 @@ export async function getStaticPaths() {
     
     return {
       paths,
-      fallback: true // Allow generation of new pages on-demand
+      fallback: true 
     };
   } catch (error) {
     console.error('Error fetching trip paths:', error);

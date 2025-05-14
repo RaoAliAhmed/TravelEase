@@ -164,23 +164,23 @@ export async function getServerSideProps() {
   try {
     const { db } = await connectToDatabase();
     
-    // Get counts of various collections
+
     const userCount = await db.collection('users').countDocuments();
     const flightCount = await db.collection('flights').countDocuments();
     const busCount = await db.collection('buses').countDocuments();
     const tripCount = await db.collection('trips').countDocuments();
     
-    // Calculate total bookings across all users
+
     const users = await db.collection('users').find({}).toArray();
     const bookingCount = users.reduce((total, user) => {
       return total + (user.bookings ? user.bookings.length : 0);
     }, 0);
     
-    // Get recent bookings with user and item info
+
     const recentBookings = [];
-    for (const user of users.slice(0, 20)) { // Limit to first 20 users for performance
+    for (const user of users.slice(0, 20)) { 
       if (user.bookings && user.bookings.length > 0) {
-        for (const booking of user.bookings.slice(0, 3)) { // Get up to 3 most recent bookings per user
+        for (const booking of user.bookings.slice(0, 3)) { 
           let itemName = 'Unknown';
           
           // Get item name based on type
@@ -208,10 +208,10 @@ export async function getServerSideProps() {
       }
     }
     
-    // Sort recent bookings by date
+   
     recentBookings.sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt));
     
-    // Get recent users
+
     const recentUsers = await db.collection('users')
       .find({})
       .sort({ createdAt: -1 })

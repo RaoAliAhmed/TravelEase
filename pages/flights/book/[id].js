@@ -1,4 +1,4 @@
-// pages/flights/book/[id].js
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
@@ -34,7 +34,7 @@ export default function FlightBooking() {
         const data = await res.json();
         setFlight(data);
         
-        // Initialize with first class option if available
+
         if (data.classes && data.classes.length > 0) {
           setSelectedClass(data.classes[0]);
         }
@@ -48,7 +48,7 @@ export default function FlightBooking() {
     fetchFlight();
   }, [id]);
 
-  // Validate that we have enough seats available
+
   useEffect(() => {
     if (flight && passengerCount > flight.seats) {
       setError(`Only ${flight.seats} seats available. Please select fewer passengers.`);
@@ -63,7 +63,7 @@ export default function FlightBooking() {
       return;
     }
 
-    // Validate seat availability again
+ 
     if (flight && passengerCount > flight.seats) {
       setError(`Only ${flight.seats} seats available. Please select fewer passengers.`);
       return;
@@ -96,7 +96,7 @@ export default function FlightBooking() {
       setBookingId(data.booking.bookingId);
       setBookingSuccess(true);
 
-      // Update available seats - deduct the correct number of seats based on passenger count
+  
       const newSeats = flight.seats - passengerCount;
       await fetch(`/api/flights/${id}/seats`, {
         method: 'PUT',

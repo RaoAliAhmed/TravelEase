@@ -29,7 +29,7 @@ export default function AdminBusView({ bus }) {
     );
   }
 
-  // Format dates
+
   const startDate = bus.startDate ? new Date(bus.startDate) : null;
   const endDate = bus.endDate ? new Date(bus.endDate) : null;
 
@@ -135,7 +135,7 @@ export async function getServerSideProps({ params }) {
   try {
     const { db } = await connectToDatabase();
     
-    // Validate MongoDB ObjectId
+
     if (!ObjectId.isValid(params.id)) {
       return {
         props: { bus: null }
@@ -150,7 +150,7 @@ export async function getServerSideProps({ params }) {
       };
     }
     
-    // Format for JSON serialization
+
     const formattedBus = {
       ...bus,
       _id: bus._id.toString(),

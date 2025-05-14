@@ -32,7 +32,7 @@ export default function TravelCard({
   const router = useRouter();
   const { data: session } = useSession();
   
-  // Handle different field naming conventions
+
   const from = item.from || item.origin;
   const to = item.to || item.destination;
   const companyName = item[companyField] || item.busCompany || item.name;
@@ -42,7 +42,6 @@ export default function TravelCard({
 
   const handleBookClick = (e) => {
     e.stopPropagation();
-    // Ensure we always use 'buses' for bus type
     const urlType = type === 'bus' ? 'buses' : `${type}s`;
     if (session) {
       router.push(`/${urlType}/book/${item._id}`);
@@ -53,7 +52,6 @@ export default function TravelCard({
 
   const handleCardClick = () => {
     if (item._id) {
-      // Ensure we always use 'buses' for bus type
       const urlType = type === 'bus' ? 'buses' : `${type}s`;
       router.push(`/${urlType}/${item._id}`);
     }
@@ -64,7 +62,6 @@ export default function TravelCard({
       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
       onClick={handleCardClick}
     >
-      {/* Image */}
       <div className="relative h-48 w-full">
         <Image
           src={item.image || `/images/${type}-placeholder.jpg`}

@@ -12,7 +12,7 @@ export default function DataTable({
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(null);
 
-  // Sort function
+
   const sortedData = () => {
     let sortableItems = [...data];
     if (sortConfig.key) {
@@ -41,7 +41,7 @@ export default function DataTable({
     return sortableItems;
   };
 
-  // Filter function
+
   const filteredData = sortedData().filter(item => {
     return columns.some(column => {
       const value = item[column.key];
@@ -50,7 +50,6 @@ export default function DataTable({
     });
   });
 
-  // Sort handler
   const requestSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -59,13 +58,12 @@ export default function DataTable({
     setSortConfig({ key, direction });
   };
 
-  // Delete handler
+
   const handleDelete = async (id) => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       setIsDeleting(id);
       try {
         await onDelete(id);
-        // The parent component should refresh the data
       } catch (error) {
         console.error(`Error deleting ${type}:`, error);
         alert(`Failed to delete ${type}`);
@@ -75,13 +73,11 @@ export default function DataTable({
     }
   };
 
-  // Format dates
   const formatDate = (dateString) => {
     if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' });
   };
 
-  // Format cell values
   const formatCellValue = (value, dataType) => {
     if (value === null || value === undefined) return '—';
     

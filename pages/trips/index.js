@@ -10,14 +10,14 @@ export default function Trips({ trips }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('price');
   
-  // Filter trips based on search term
+
   const filteredTrips = trips.filter(trip => 
     (trip.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (trip.destination || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (trip.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  // Sort trips based on selected criteria
+  
   const sortedTrips = [...filteredTrips].sort((a, b) => {
     if (sortBy === 'price') return a.price - b.price;
     if (sortBy === 'duration') return a.duration.localeCompare(b.duration);
@@ -68,7 +68,7 @@ export async function getStaticProps() {
     const { db } = await connectToDatabase();
     const trips = await db.collection('trips').find({}).toArray();
     
-    // Serialize for JSON
+
     const serializedTrips = JSON.parse(JSON.stringify(trips, (key, value) => {
       if (key === '_id') return value.toString();
       return value;
@@ -76,7 +76,7 @@ export async function getStaticProps() {
     
     return {
       props: { trips: serializedTrips },
-      revalidate: 300 // Revalidate every 5 minutes
+      revalidate: 300 
     };
   } catch (error) {
     console.error('Error fetching trips:', error);

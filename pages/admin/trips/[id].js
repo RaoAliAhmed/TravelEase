@@ -29,7 +29,7 @@ export default function AdminTripView({ trip }) {
     );
   }
 
-  // Format dates
+
   const startDate = trip.startDate ? new Date(trip.startDate) : null;
   const endDate = trip.endDate ? new Date(trip.endDate) : null;
 
@@ -127,7 +127,7 @@ export async function getServerSideProps({ params }) {
   try {
     const { db } = await connectToDatabase();
     
-    // Validate MongoDB ObjectId
+
     if (!ObjectId.isValid(params.id)) {
       return {
         props: { trip: null }
@@ -142,7 +142,7 @@ export async function getServerSideProps({ params }) {
       };
     }
     
-    // Format for JSON serialization
+   
     const formattedTrip = {
       ...trip,
       _id: trip._id.toString(),

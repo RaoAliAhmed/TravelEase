@@ -66,7 +66,7 @@ const trips = [
     price: 2299,
     rating: 4.8,
     availableSpots: 12,
-    featured: true,
+    featured: false,
     image: "https://images.unsplash.com/photo-1523805009345-7448845a9e53?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1172&q=80",
     startDate: new Date("2023-10-15"),
     endDate: new Date("2023-10-23"),

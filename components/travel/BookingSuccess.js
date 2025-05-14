@@ -40,13 +40,13 @@ export default function BookingSuccess({
   const colors = colorClasses[color] || colorClasses.blue;
   const typeTitle = type.charAt(0).toUpperCase() + type.slice(1);
 
-  // 1. Get context based on type
+
   const busContext = useBus();
   const flightContext = useFlight();
   const tripContext = useTrip();
   const context = { bus: busContext, flight: flightContext, trip: tripContext }[type] || {};
 
-  // 2. Destructure context values with fallback
+
   const {
     passengerCount = 1,
     selectedClass,
@@ -54,13 +54,11 @@ export default function BookingSuccess({
     totalPrice: contextTotalPrice
   } = context;
 
-  // Format date with validation
   const formatDate = (dateValue) => {
     if (!dateValue) return 'Not specified';
     
     const parsedDate = new Date(dateValue);
     
-    // Check if date is valid
     if (isNaN(parsedDate.getTime())) {
       return 'Not specified';
     }
